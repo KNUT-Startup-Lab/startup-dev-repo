@@ -3,11 +3,15 @@ server:
   shutdown: graceful
 
 spring:
+  profiles:
+    active: dev
+    include: secret
   datasource:
-    url: jdbc:mysql://localhost:3306/mydb?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: postgres
+    url: jdbc:mysql://localhost:3306/mydb
+    username: root
     password: ${custom.prod.database.password}
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
