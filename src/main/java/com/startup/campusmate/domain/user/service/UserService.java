@@ -1,6 +1,8 @@
-package com.startup.campusmate.User.service;
+package com.startup.campusmate.domain.user.service;
 
-import com.startup.campusmate.User.repository.UserRepository;
+import com.startup.campusmate.domain.user.dto.UserDto;
+import com.startup.campusmate.domain.user.entity.User;
+import com.startup.campusmate.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +12,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public void signup(SignupRequestDto dto) {
+    public void signup(UserDto dto) {
         // 이메일 중복 체크
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");

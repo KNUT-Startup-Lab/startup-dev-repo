@@ -1,6 +1,6 @@
-package com.startup.campusmate.User.repository;
+package com.startup.campusmate.domain.user.repository;
 
-import com.startup.campusmate.User.entity.User;
+import com.startup.campusmate.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {

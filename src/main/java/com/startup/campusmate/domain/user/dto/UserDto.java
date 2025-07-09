@@ -1,4 +1,4 @@
-package com.startup.campusmate.User.dto;
+package com.startup.campusmate.domain.user.dto;
 
 import lombok.Getter;
 
