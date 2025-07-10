@@ -11,7 +11,6 @@ spring:
     username: root
     password: ${custom.prod.database.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
