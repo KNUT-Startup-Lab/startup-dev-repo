@@ -1,26 +1,21 @@
 package com.startup.campusmate.domain.user.entity;
 
-import jakarta.persistence.*;
+import com.startup.campusmate.global.jpa.BaseTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
-import java.time.LocalDateTime;
+import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+@NoArgsConstructor(access = PROTECTED)
+@AllArgsConstructor(access = PROTECTED)
+public class User extends BaseTime {
     @Column(unique = true)
     private String email;
 
@@ -35,11 +30,4 @@ public class User {
     private String major;
 
     private String profile_image_url;
-
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
 }

@@ -19,7 +19,7 @@ public class RsData<T> {
     @NonNull
     int statusCode;
     @NonNull
-    String msg;
+    String massage;
     @NonNull
     T data;
 
@@ -60,6 +60,6 @@ public class RsData<T> {
     }
 
     public <T> RsData<T> newDataOf(T data) {
-        return new RsData<>(resultCode, statusCode, msg, data);
+        return new RsData<>(resultCode, statusCode, massage, data);
     }
 }
