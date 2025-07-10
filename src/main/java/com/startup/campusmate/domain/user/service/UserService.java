@@ -3,7 +3,9 @@ package com.startup.campusmate.domain.user.service;
 import com.startup.campusmate.domain.user.dto.UserDto;
 import com.startup.campusmate.domain.user.entity.User;
 import com.startup.campusmate.domain.user.repository.UserRepository;
+import com.startup.campusmate.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,6 +13,8 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public void signup(UserDto dto) {
         // 이메일 중복 체크
@@ -26,7 +30,7 @@ public class UserService {
         // 사용자 저장
         User user = User.builder()
                 .email(dto.getEmail())
-                .password(dto.getPassword()) // 실제로는 암호화해야 함
+                .password(passwordEncoder.encode(dto.getPassword())) // 실제로는 암호화해야 함
                 .name(dto.getName())
                 .phone(dto.getPhone())
                 .studentNum(dto.getStudent_num())
