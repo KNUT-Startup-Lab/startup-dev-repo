@@ -1,5 +1,6 @@
-package com.startup.campusmate.domain.member.entity;
+package com.startup.campusmate.domain.token.refresh.entity;
 
+import com.startup.campusmate.domain.member.entity.Member;
 import com.startup.campusmate.global.jpa.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,8 +9,6 @@ import java.util.Date;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class RefreshToken extends BaseTime {
     private String tokenHash;

@@ -1,4 +1,4 @@
-package com.startup.campusmate.domain.user.entity;
+package com.startup.campusmate.domain.member.entity;
 
 import com.startup.campusmate.global.jpa.BaseTime;
 import jakarta.persistence.Column;
@@ -15,13 +15,13 @@ import static lombok.AccessLevel.PROTECTED;
 @Builder
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor(access = PROTECTED)
-public class User extends BaseTime {
+public class Member extends BaseTime {
     @Column(unique = true)
     private String email;
 
     private String password;
     private String name;
-    private String phone;
+    private String phoneNum;
 
     @Column(unique = true)
     private String studentNum;
@@ -30,4 +30,6 @@ public class User extends BaseTime {
     private String major;
 
     private String profile_image_url;
+
+    private boolean _isAdmin;
 }

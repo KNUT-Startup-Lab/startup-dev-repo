@@ -1,12 +1,8 @@
-package com.startup.campusmate.domain.member.repository;
+package com.startup.campusmate.domain.token.refresh.repository;
 
-import com.startup.campusmate.domain.member.entity.Member;
+import com.startup.campusmate.domain.token.blacklist.entity.BlackListedToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
-
-public interface UserRepository extends JpaRepository<Member, Long> {
-    boolean existsByEmail(String email);
-    boolean existsByStudentNum(String studentNum);
-    Optional<Member> findByEmail(String email);
+public interface BlackListRepository extends JpaRepository<BlackListedToken, Long> {
+    void deleteByTokenHash(String refreshToken);
 }
