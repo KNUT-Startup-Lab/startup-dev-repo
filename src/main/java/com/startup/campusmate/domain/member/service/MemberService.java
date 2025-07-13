@@ -2,25 +2,25 @@ package com.startup.campusmate.domain.member.service;
 
 import com.startup.campusmate.domain.member.dto.LoginRs;
 import com.startup.campusmate.domain.member.dto.SignupRq;
-import com.startup.campusmate.domain.member.dto.rq.SignupRequest;
-import com.startup.campusmate.domain.member.dto.rs.LoginResponse;
 import com.startup.campusmate.domain.member.entity.Member;
+import com.startup.campusmate.domain.member.repository.MemberRepository;
 import com.startup.campusmate.domain.token.blacklist.entity.BlackListedToken;
-import com.startup.campusmate.domain.token.blacklist.repository.RefreshRepository;
+import com.startup.campusmate.domain.token.blacklist.repository.BlackListRepository;
 import com.startup.campusmate.domain.token.refresh.entity.RefreshToken;
-import com.startup.campusmate.domain.member.repository.UserRepository;
-import com.startup.campusmate.domain.token.refresh.repository.BlackListRepository;
+import com.startup.campusmate.domain.token.refresh.repository.RefreshRepository;
 import com.startup.campusmate.global.security.JwtTokenProvider;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final RefreshRepository refreshRepository;
     private final BlackListRepository blacklistRepository;
     private final PasswordEncoder passwordEncoder;
@@ -28,12 +28,12 @@ public class MemberService {
 
     public void signup(SignupRq dto) {
         // 이메일 중복 체크
-        if (userRepository.existsByEmail(dto.getEmail())) {
+        if (memberRepository.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
         // 학번 중복 체크
-        if (userRepository.existsByStudentNum(dto.getStudentNum()))) {
+        if (memberRepository.existsByStudentNum(dto.getStudentNum())) {
             throw new IllegalArgumentException("이미 존재하는 학번입니다.");
         }
 
@@ -48,11 +48,11 @@ public class MemberService {
                 .major(dto.getMajor())
                 .build();
 
-        userRepository.save(member);
+        memberRepository.save(member);
     }
 
     public LoginRs login(String email, String password) {
-        Member member = userRepository.findByEmail(email)
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("유저 없음"));
 
         if (!passwordEncoder.matches(password, member.getPassword())) {
@@ -78,11 +78,12 @@ public class MemberService {
                 .build();
     }
 
+    @Transactional
     public void logout(String accessToken, String refreshToken) {
         refreshRepository.deleteByTokenHash(refreshToken);
 
         String jti = jwtTokenProvider.getJti(accessToken);
-        Date expiredDate = jwtTokenProvider.getExpiry()
+        Date expiredDate = jwtTokenProvider.getExpiry(accessToken);
 
         BlackListedToken token = BlackListedToken.builder()
                 .jti(jti)

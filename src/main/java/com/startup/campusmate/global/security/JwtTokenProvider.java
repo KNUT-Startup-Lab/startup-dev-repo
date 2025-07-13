@@ -58,4 +58,8 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
+
+    public Date getRefreshTokenExpiryDate() {
+        return new Date(System.currentTimeMillis() + refreshTokenValidity);
+    }
 }

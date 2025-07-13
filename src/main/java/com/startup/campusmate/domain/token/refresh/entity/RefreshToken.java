@@ -10,6 +10,8 @@ import java.util.Date;
 @Entity
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RefreshToken extends BaseTime {
     private String tokenHash;
 

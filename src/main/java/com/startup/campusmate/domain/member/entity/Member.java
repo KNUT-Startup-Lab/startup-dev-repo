@@ -8,13 +8,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import static lombok.AccessLevel.PROTECTED;
-
 @Entity
 @Getter
 @Builder
-@NoArgsConstructor(access = PROTECTED)
-@AllArgsConstructor(access = PROTECTED)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Member extends BaseTime {
     @Column(unique = true)
     private String email;
