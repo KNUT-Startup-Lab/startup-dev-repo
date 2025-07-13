@@ -23,9 +23,11 @@ spring:
     serialization:
       fail-on-empty-beans: false
 
-jwt:
-  access-token-validity-ms: 3600000      # 액세스토큰 1시간
-  refresh-token-validity-ms: 86400000    # 리프레시토큰 24시간
+custom:
+  jwt:
+    secret: testkey
+    access-token-validity-ms: 3600000      # 액세스토큰 1시간
+    refresh-token-validity-ms: 86400000    # 리프레시토큰 24시간
 
 logging:
   level:
