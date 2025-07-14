@@ -1,11 +1,15 @@
 package com.startup.campusmate.domain.member.controller;
 
-import com.startup.campusmate.domain.member.dto.LoginRq;
-import com.startup.campusmate.domain.member.dto.LoginRs;
-import com.startup.campusmate.domain.member.dto.SignupRq;
+import com.startup.campusmate.domain.member.dto.auth.recovery.ChangePassword;
+import com.startup.campusmate.domain.member.dto.auth.recovery.FindIdRq;
+import com.startup.campusmate.domain.member.dto.auth.recovery.FindPasswordRq;
+import com.startup.campusmate.domain.member.dto.auth.session.LoginRq;
+import com.startup.campusmate.domain.member.dto.auth.session.LoginRs;
+import com.startup.campusmate.domain.member.dto.auth.signup.SignupRq;
 import com.startup.campusmate.domain.member.service.MemberService;
 import com.startup.campusmate.global.rsData.RsData;
 import com.startup.campusmate.standard.base.Empty;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,80 +44,50 @@ public class MemberController {
         return RsData.of("로그아웃 성공");
     }
 
+    @PostMapping("/find-id")
+    public RsData<?> findMemberId(@RequestBody FindIdRq findIdRq) {
+        // 저장소에서 해당 이메일 찾기
+        String email = memberService.findMemberId(findIdRq.getName(), findIdRq.getPhoneNum());
 
-//    @Getter
-//    @Builder
-//    public static class FindIdRq {
-//        private String name;
-//        private String phoneNum;
-//    }
-//
-//    @Getter
-//    @Builder
-//    public static class FindPasswordRq {
-//        private String email;
-//        private String phoneNum;
-//    }
-//
-//
-//    @PostMapping("/find-id")
-//    public RsData<String> findId(@RequestBody FindIdRq findIdRq) {
-//        // 저장소에서 해당 이메일 찾기
-//
-//        return RsData.of("아이디 찾기 성공", email);
-//    }
-//
-//    @PostMapping("/find-password")
-//    public RsData<Empty> findPassword(@RequestBody FindPasswordRq findPasswordRq) {
-//        //이메일 발송
-//        return RsData.of("임시 비밀번호 발송 완료");
-//    }
-//
-//    @Getter
-//    @Builder
-//    public static class ChangePassword {
-//        private String currentPassword;
-//        private String newPassword;
-//    }
-//
-//    @PutMapping("/change-password")
-//    public RsData<Empty> changePassword(@RequestBody ChangePassword changePassword) {
-//
-//        // 저장소에서 변경하는 코드
-//
-//        return RsData.of("비밀번호 변경 성공");
-//    }
-//
-//    @GetMapping("/check-email/{email}")
-//    public RsData<Boolean> checkEmail(String isAvailable) {
-//
-//        return RsData.of("사용 가능한 이메일", isAvailable);
-//    }
-//
-//    @Getter
-//    @Builder
-//    public static class VerifyPhone {
-//        private String phoneNum;
-//        private String verificationCode;
-//    }
-//
+        if (email != null) {
+            return RsData.of("이메일 찾기 성공", email);
+        }
+        else {
+            return RsData.of("이메일 찾기 실패");
+        }
+    }
+
+    @PostMapping("/find-password")
+    public RsData<Empty> findPassword(@RequestBody FindPasswordRq findPasswordRq) {
+        //이메일 발송
+        try {
+            memberService.sendResetLink(findPasswordRq.getEmail());
+            return RsData.of("재설정 링크 발송 완료");
+        } catch (MessagingException e) {
+            return RsData.of("메일 전송 실패");
+        }
+    }
+
+    @PutMapping("/change-password")
+    public RsData<Empty> changePassword(@RequestBody ChangePassword changePassword) {
+        // 저장소에서 변경하는 코드
+        memberService.changePassword(
+                changePassword.getCurrentPassword(),
+                changePassword.getNewPassword()
+        );
+        return RsData.of("비밀번호 변경 성공");
+    }
+
+    @GetMapping("/check-email/{email}")
+    public RsData<Boolean> checkEmail(@PathVariable("email") String email) {
+        Boolean isAvailable = memberService.isEmailAvailable(email);
+        return RsData.of("사용 가능한 이메일", isAvailable);
+    }
+
 //    @PostMapping("/verify-phone")
 //    public RsData<Boolean> verifyPhone(@RequestBody VerifyPhone verifyPhone) {
 //        // 휴대폰 인증하는 코드
 //        return RsData.of("인증성공", isVerified);
-//    }
-//
-//    @Getter
-//    @Builder
-//    public static class MemberDto {
-//        private String email;
-//        private String password;
-//        private String name;
-//        private String phoneNum;
-//        private String studentNum;
-//        private String college;
-//        private String major;
-//        private boolean _isAdmin;
 //    }
 //
 //    @GetMapping("/users/profile")
@@ -123,13 +97,13 @@ public class MemberController {
 //
 //        return RsData.of("조회 성공", member);
 //    }
-//
+
 //    @PutMapping("/users/profile")
 //    public RsData<MemberDto> profile2(@RequestBody MemberDto memberDto) {
-//        // DB에서 해당 이메일 기반으로 검색한 다음에 해당 컬럼 수정
+//        //DB에서 해당 이메일 기반으로 검색한 다음에 해당 컬럼 수정
 //        return RsData.of("수정 성공", memberDto);
 //    }
-//
+
 //    @PutMapping("/users/profile/image")
 //    public RsData<?> changeImage() {
 //        // 고민
@@ -140,7 +114,7 @@ public class MemberController {
 //    public RsData<?> deleteImage() {
 //        // 패스
 //    }
-//
+
 //    @DeleteMapping("/users/account")
 //    public RsData<Empty> deleteAccount(String password) {
 //        // 비밀번호 비교한 다음 해당 컬럼 삭제
