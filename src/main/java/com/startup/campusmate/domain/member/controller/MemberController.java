@@ -1,14 +1,16 @@
 package com.startup.campusmate.domain.member.controller;
 
-import com.startup.campusmate.domain.member.dto.*;
-import com.startup.campusmate.domain.member.entity.Member;
-import com.startup.campusmate.domain.member.repository.MemberRepository;
+import com.startup.campusmate.domain.member.dto.auth.recovery.ChangePassword;
+import com.startup.campusmate.domain.member.dto.auth.recovery.FindIdRq;
+import com.startup.campusmate.domain.member.dto.auth.recovery.FindPasswordRq;
+import com.startup.campusmate.domain.member.dto.auth.session.LoginRq;
+import com.startup.campusmate.domain.member.dto.auth.session.LoginRs;
+import com.startup.campusmate.domain.member.dto.auth.signup.SignupRq;
 import com.startup.campusmate.domain.member.service.MemberService;
 import com.startup.campusmate.global.rsData.RsData;
 import com.startup.campusmate.standard.base.Empty;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
 
     @PostMapping("/signup")
     public RsData<Empty> signup(
@@ -44,7 +45,7 @@ public class MemberController {
     }
 
     @PostMapping("/find-id")
-    public RsData<String> findMemberId(@RequestBody FindIdRq findIdRq) {
+    public RsData<?> findMemberId(@RequestBody FindIdRq findIdRq) {
         // 저장소에서 해당 이메일 찾기
         String email = memberService.findMemberId(findIdRq.getName(), findIdRq.getPhoneNum());
 
@@ -52,7 +53,7 @@ public class MemberController {
             return RsData.of("이메일 찾기 성공", email);
         }
         else {
-            return RsData.of("이메일 찾기 실패", email);
+            return RsData.of("이메일 찾기 실패");
         }
     }
 
@@ -63,7 +64,7 @@ public class MemberController {
             memberService.sendResetLink(findPasswordRq.getEmail());
             return RsData.of("재설정 링크 발송 완료");
         } catch (MessagingException e) {
-            return ResponseEntity.status(500).body("메일 전송 실패");
+            return RsData.of("메일 전송 실패");
         }
     }
 
@@ -99,7 +100,7 @@ public class MemberController {
 
 //    @PutMapping("/users/profile")
 //    public RsData<MemberDto> profile2(@RequestBody MemberDto memberDto) {
-//        // DB에서 해당 이메일 기반으로 검색한 다음에 해당 컬럼 수정
+//        //DB에서 해당 이메일 기반으로 검색한 다음에 해당 컬럼 수정
 //        return RsData.of("수정 성공", memberDto);
 //    }
 

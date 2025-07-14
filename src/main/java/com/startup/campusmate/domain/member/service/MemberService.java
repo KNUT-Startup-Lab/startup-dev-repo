@@ -1,7 +1,7 @@
 package com.startup.campusmate.domain.member.service;
 
-import com.startup.campusmate.domain.member.dto.LoginRs;
-import com.startup.campusmate.domain.member.dto.SignupRq;
+import com.startup.campusmate.domain.member.dto.auth.session.LoginRs;
+import com.startup.campusmate.domain.member.dto.auth.signup.SignupRq;
 import com.startup.campusmate.domain.member.entity.Member;
 import com.startup.campusmate.domain.member.repository.MemberRepository;
 import com.startup.campusmate.domain.token.blacklist.entity.BlackListedToken;
