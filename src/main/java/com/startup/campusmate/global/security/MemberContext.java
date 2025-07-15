@@ -14,13 +14,13 @@ public class MemberContext extends User {
 
     private final Long id; // Member의 고유 ID
     private final String email; // Member의 이메일
-    private final boolean isAdmin; // 관리자 여부
+    private final boolean _isAdmin; // 관리자 여부
 
     public MemberContext(Member member, Collection<? extends GrantedAuthority> authorities) {
         super(member.getEmail(), member.getPassword(), authorities);
         this.id = member.getId();
         this.email = member.getEmail();
-        this.isAdmin = member.is_isAdmin();
+        this._isAdmin = member.is_isAdmin();
     }
 
     // Member 객체로부터 MemberContext를 생성하는 팩토리 메서드

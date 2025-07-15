@@ -2,7 +2,9 @@ package com.startup.campusmate.domain.notice.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter // Lombok을 사용하여 Getter 메서드를 자동으로 생성합니다.
 public class NoticeDto {
 

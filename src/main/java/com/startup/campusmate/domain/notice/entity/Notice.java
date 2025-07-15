@@ -2,6 +2,7 @@ package com.startup.campusmate.domain.notice.entity;
 
 import com.startup.campusmate.domain.member.entity.Member;
 import com.startup.campusmate.global.jpa.BaseEntity;
+import com.startup.campusmate.global.jpa.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @Getter // Lombok을 사용하여 Getter 메서드를 자동으로 생성합니다.
 @Setter // Lombok을 사용하여 Setter 메서드를 자동으로 생성합니다.
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Lombok을 사용하여 파라미터 없는 생성자를 생성하며, 접근 수준을 PROTECTED로 설정합니다.
-public class Notice extends BaseEntity { // 공통 필드를 가진 BaseEntity를 상속받습니다.
+public class Notice extends BaseTime { // 공통 필드를 가진 BaseEntity를 상속받습니다.
 
     @Column(nullable = false) // 데이터베이스 컬럼에 매핑하며, null을 허용하지 않습니다.
     private String title; // 공지사항의 제목

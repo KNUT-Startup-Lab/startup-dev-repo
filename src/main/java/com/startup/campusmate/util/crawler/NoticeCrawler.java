@@ -26,23 +26,37 @@ public class NoticeCrawler {
     @Scheduled(cron = "0 0 * * * *")
     @Transactional // 트랜잭션 내에서 동작하도록 설정합니다.
     public void crawlSchoolNotices() {
-        String url = "https://www.example.com/school/notices"; // TODO: 실제 학교 공지사항 URL로 변경해야 합니다.
+        String url = "https://www.ut.ac.kr/cop/bbs/BBSMSTR_000000000141/selectBoardList.do";
         System.out.println("크롤링 시작: " + url);
 
         try {
-            // Jsoup을 사용하여 웹 페이지를 가져옵니다.
             Document doc = Jsoup.connect(url).get();
 
-            // TODO: 실제 학교 공지사항 페이지의 HTML 구조에 맞춰 선택자를 변경해야 합니다.
-            // 예시: 공지사항 목록을 포함하는 테이블 또는 div
-            Elements noticeRows = doc.select("table.board-list tr"); // 예시 선택자
+            Elements noticeRows = doc.select("table.basic_table.center > tbody > tr");
 
             for (Element row : noticeRows) {
-                // TODO: 각 공지사항의 제목, 부서명, 원본 URL 등을 추출합니다.
-                // 예시: 제목, 링크, 부서명
-                String title = row.select("td.title a").text();
-                String originalUrl = row.select("td.title a").attr("abs:href");
-                String department = row.select("td.department").text();
+                String title;
+                String originalUrl;
+                String department = row.select("td.problem_name").text();
+
+                // 상단 고정 공지사항인지 확인
+                Element pinnedNoticeTitleElement = row.select("td.left div.list_subject span.link a b").first();
+
+                if (pinnedNoticeTitleElement != null) {
+                    // 상단 고정 공지사항
+                    title = pinnedNoticeTitleElement.text();
+                    originalUrl = row.select("td.left div.list_subject span.link a").attr("abs:href");
+                } else {
+                    // 일반 공지사항
+                    Element formElement = row.select("td.left form[name=subForm]").first();
+                    if (formElement == null) {
+                        continue; // 유효한 공지사항 행이 아니면 건너뛰기
+                    }
+                    title = formElement.select("input[type=submit]").attr("value");
+                    String formAction = formElement.attr("action");
+                    String nttId = formElement.select("input[name=nttId]").attr("value");
+                    originalUrl = "https://www.ut.ac.kr" + formAction + "?nttId=" + nttId;
+                }
 
                 // 중복 게시물 확인
                 if (noticeRepository.existsByOriginalUrl(originalUrl)) {

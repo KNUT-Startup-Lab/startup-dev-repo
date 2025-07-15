@@ -1,5 +1,8 @@
 package com.startup.campusmate.domain.notice.controller;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.startup.campusmate.global.security.MemberContext;
+
 import com.startup.campusmate.domain.notice.dto.NoticeCreateRq;
 import com.startup.campusmate.domain.notice.dto.NoticeListRs;
 import com.startup.campusmate.domain.notice.dto.NoticeUpdateRq;
@@ -15,7 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -128,14 +134,18 @@ public class NoticeController {
             File file = rsData.getData();
             Resource resource = new UrlResource(file.toURI());
 
-            String contentType = "application/octet-stream"; // 기본값
-            // TODO: 파일 확장자에 따라 Content-Type 동적으로 설정
+            String contentType = Files.probeContentType(Paths.get(file.getAbsolutePath()));
+            if (contentType == null) {
+                contentType = "application/octet-stream"; // 기본값
+            }
 
             return ResponseEntity.ok()
                     .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
                     .body(resource);
         } catch (MalformedURLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
