@@ -12,5 +12,5 @@ public class NoticeCreateRq {
     private String title; // 생성할 공지사항의 제목
     private String content; // 생성할 공지사항의 내용
     private String department; // 공지사항을 게시하는 부서
-    private List<String> attachments; // 첨부된 파일들의 ID 목록
+    private List<Long> attachments; // 첨부된 파일들의 ID 목록
 }

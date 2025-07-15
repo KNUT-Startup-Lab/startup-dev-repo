@@ -4,7 +4,9 @@ import com.startup.campusmate.domain.notice.entity.Notice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 // Notice 엔티티에 대한 데이터베이스 작업을 처리하는 JpaRepository 인터페이스입니다.
-public interface NoticeRepository extends JpaRepository<Notice, Long> { // JpaRepository<엔티티 클래스, ID 타입>
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+public interface NoticeRepository extends JpaRepository<Notice, Long>, JpaSpecificationExecutor<Notice> { // JpaRepository<엔티티 클래스, ID 타입>
 
     /**
      * 원본 URL을 기준으로 게시물이 존재하는지 확인합니다.

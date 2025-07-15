@@ -12,5 +12,5 @@ public class NoticeUpdateRq {
     private String title; // 수정할 공지사항의 제목
     private String content; // 수정할 공지사항의 내용
     private String department; // 수정할 공지사항의 부서
-    private List<String> attachments; // 수정 후의 첨부파일 ID 목록
+    private List<Long> attachments; // 수정 후의 첨부파일 ID 목록
 }

@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,8 +47,48 @@ public class NoticeService {
 
         Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        // TODO: 검색 조건에 따른 동적 쿼리 구현 (QueryDSL 또는 Specification 사용 예정)
-        Page<Notice> noticePage = noticeRepository.findAll(pageable);
+        Specification<Notice> spec = (root, query, cb) -> {
+            Predicate p = cb.conjunction(); // 모든 조건을 AND로 연결
+
+            // 카테고리 검색
+            if (category != null && !category.isEmpty()) {
+                try {
+                    NoticeCategory noticeCategory = NoticeCategory.valueOf(category.toUpperCase());
+                    p = cb.and(p, cb.equal(root.get("category"), noticeCategory));
+                } catch (IllegalArgumentException e) {
+                    // 유효하지 않은 카테고리 값은 무시
+                }
+            }
+
+            // 검색 키워드 및 타입
+            if (searchKeyword != null && !searchKeyword.isEmpty()) {
+                switch (searchType) {
+                    case "title":
+                        p = cb.and(p, cb.like(root.get("title"), "%" + searchKeyword + "%"));
+                        break;
+                    case "content":
+                        p = cb.and(p, cb.like(root.get("content"), "%" + searchKeyword + "%"));
+                        break;
+                    case "title_content":
+                        Predicate titleLike = cb.like(root.get("title"), "%" + searchKeyword + "%");
+                        Predicate contentLike = cb.like(root.get("content"), "%" + searchKeyword + "%");
+                        p = cb.and(p, cb.or(titleLike, contentLike));
+                        break;
+                }
+            }
+
+            // 날짜 범위 검색
+            if (startDate != null) {
+                p = cb.and(p, cb.greaterThanOrEqualTo(root.get("createDate"), startDate));
+            }
+            if (endDate != null) {
+                p = cb.and(p, cb.lessThanOrEqualTo(root.get("createDate"), endDate));
+            }
+
+            return p;
+        };
+
+        Page<Notice> noticePage = noticeRepository.findAll(spec, pageable);
 
         List<NoticeDto> noticeDtos = noticePage.getContent().stream()
                 .map(notice -> NoticeDto.builder()
@@ -145,17 +187,11 @@ public class NoticeService {
 
         // 첨부파일 처리
         if (rq.getAttachments() != null && !rq.getAttachments().isEmpty()) {
-            for (String fileId : rq.getAttachments()) {
-                // TODO: 실제 파일 저장 로직 및 Attachment 엔티티 생성 로직 필요
-                // 현재는 DTO에 파일 ID만 받으므로, 실제 파일 업로드는 별도의 API에서 처리 후 ID를 넘겨받는 방식 가정
-                // 임시로 Attachment 엔티티를 생성하여 Notice와 연결
-                Attachment attachment = Attachment.builder()
-                        .uploadFileName("temp_file_name") // 임시 파일명
-                        .storedFileName(fileId) // fileId를 저장된 파일명으로 사용 (실제로는 UUID 등)
-                        .filePath("temp/path/") // 임시 경로
-                        .notice(notice)
-                        .build();
-                attachmentRepository.save(attachment);
+            for (Long attachmentId : rq.getAttachments()) {
+                attachmentRepository.findById(attachmentId).ifPresent(attachment -> {
+                    attachment.setNotice(notice); // Attachment 엔티티에 Notice 연결
+                    // attachmentRepository.save(attachment); // Notice 엔티티의 cascade 설정에 따라 필요 없을 수 있음
+                });
             }
         }
 
@@ -205,7 +241,36 @@ public class NoticeService {
             notice.setTitle(rq.getTitle());
             notice.setContent(rq.getContent());
             notice.setDepartment(rq.getDepartment());
-            // TODO: 첨부파일 수정 로직 (기존 파일 삭제 및 새 파일 추가)
+
+            // 기존 첨부파일 삭제 및 새 첨부파일 추가 로직
+            List<Attachment> existingAttachments = notice.getAttachments();
+            List<Long> newAttachmentIds = rq.getAttachments() != null ? rq.getAttachments() : List.of();
+
+            // 삭제할 첨부파일 찾기
+            List<Attachment> attachmentsToDelete = existingAttachments.stream()
+                    .filter(att -> !newAttachmentIds.contains(att.getId()))
+                    .collect(Collectors.toList());
+
+            // 삭제
+            for (Attachment attachment : attachmentsToDelete) {
+                deletePhysicalFile(attachment.getFilePath()); // 물리적 파일 삭제
+                attachmentRepository.delete(attachment); // DB에서 삭제
+                notice.getAttachments().remove(attachment); // Notice 엔티티에서 제거
+            }
+
+            // 새로 추가할 첨부파일 찾기
+            List<Long> existingAttachmentIds = existingAttachments.stream()
+                    .map(Attachment::getId)
+                    .collect(Collectors.toList());
+
+            for (Long newAttachmentId : newAttachmentIds) {
+                if (!existingAttachmentIds.contains(newAttachmentId)) {
+                    attachmentRepository.findById(newAttachmentId).ifPresent(attachment -> {
+                        attachment.setNotice(notice); // Notice와 연결
+                        notice.getAttachments().add(attachment); // Notice 엔티티에 추가
+                    });
+                }
+            }
         }
 
         noticeRepository.save(notice);
@@ -230,7 +295,10 @@ public class NoticeService {
             return RsData.of("F-2", "관리자 권한이 없습니다.");
         }
 
-        // TODO: 연관된 첨부파일 실제 파일 삭제 로직 추가
+        // 연관된 첨부파일 실제 파일 삭제 로직 추가
+        for (Attachment attachment : notice.getAttachments()) {
+            deletePhysicalFile(attachment.getFilePath());
+        }
         noticeRepository.delete(notice);
 
         return RsData.of("S-1", "공지사항 삭제 성공");
@@ -257,12 +325,18 @@ public class NoticeService {
             File dest = new File(filePath);
             file.transferTo(dest); // 파일 저장
 
-            // Attachment 엔티티는 Notice와 연결되어야 하므로, 여기서는 임시로 DTO만 반환
-            // 실제로는 Notice 생성/수정 시 이 Attachment 엔티티가 생성되어야 함
+            Attachment attachment = Attachment.builder()
+                    .uploadFileName(originalFilename)
+                    .storedFileName(storedFileName)
+                    .filePath(filePath)
+                    .notice(null) // Notice와 연결은 createNotice/updateNotice에서 진행
+                    .build();
+            attachmentRepository.save(attachment);
+
             return RsData.of("S-1", "파일 업로드 성공", AttachmentDto.builder()
-                    .file_id(storedFileName) // 임시로 저장된 파일명을 ID로 사용
-                    .filename(originalFilename)
-                    .file_url("/api/notices/attachments/" + storedFileName) // 임시 URL
+                    .file_id(attachment.getId().toString())
+                    .filename(attachment.getUploadFileName())
+                    .file_url("/api/notices/attachments/" + attachment.getId())
                     .build());
 
         } catch (IOException e) {
@@ -285,5 +359,15 @@ public class NoticeService {
         }
 
         return RsData.of("S-1", "파일 다운로드 준비 완료", file);
+    }
+
+    // 물리적 파일 삭제 헬퍼 메서드
+    private void deletePhysicalFile(String filePath) {
+        File file = new File(filePath);
+        if (file.exists() && file.isFile()) {
+            if (!file.delete()) {
+                System.err.println("파일 삭제 실패: " + filePath);
+            }
+        }
     }
 }

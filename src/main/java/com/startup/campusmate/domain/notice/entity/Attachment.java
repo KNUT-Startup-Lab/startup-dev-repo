@@ -2,13 +2,11 @@ package com.startup.campusmate.domain.notice.entity;
 
 import com.startup.campusmate.global.jpa.BaseTime;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity // JPA 엔티티임을 선언합니다.
 @Getter // Lombok을 사용하여 Getter 메서드를 자동으로 생성합니다.
+@Setter // Lombok을 사용하여 Setter 메서드를 자동으로 생성합니다.
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Lombok을 사용하여 파라미터 없는 생성자를 생성하며, 접근 수준을 PROTECTED로 설정합니다.
 public class Attachment extends BaseTime { // 공통 시간 필드를 가진 BaseTime을 상속받습니다.
 

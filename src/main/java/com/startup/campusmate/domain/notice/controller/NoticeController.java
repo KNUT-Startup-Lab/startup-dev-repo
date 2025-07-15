@@ -74,8 +74,7 @@ public class NoticeController {
     // 직접 작성 게시물 생성 (관리자)
     @PostMapping
     public ResponseEntity<RsData<?>> createNotice(@RequestBody NoticeCreateRq rq) {
-        // TODO: 실제 관리자 ID를 SecurityContextHolder에서 가져오도록 변경
-        Long adminMemberId = 1L; // 임시 관리자 ID
+        Long adminMemberId = ((MemberContext) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         RsData<?> rsData = noticeService.createNotice(rq, adminMemberId);
         if (rsData.isFail()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(rsData);
@@ -86,8 +85,7 @@ public class NoticeController {
     // 직접 작성 게시물 수정 (관리자)
     @PutMapping("/{id}")
     public ResponseEntity<RsData<?>> updateNotice(@PathVariable Long id, @RequestBody NoticeUpdateRq rq) {
-        // TODO: 실제 관리자 ID를 SecurityContextHolder에서 가져오도록 변경
-        Long adminMemberId = 1L; // 임시 관리자 ID
+        Long adminMemberId = ((MemberContext) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         RsData<?> rsData = noticeService.updateNotice(id, rq, adminMemberId);
         if (rsData.isFail()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(rsData);
@@ -98,8 +96,7 @@ public class NoticeController {
     // 게시물 삭제 (관리자)
     @DeleteMapping("/{id}")
     public ResponseEntity<RsData<?>> deleteNotice(@PathVariable Long id) {
-        // TODO: 실제 관리자 ID를 SecurityContextHolder에서 가져오도록 변경
-        Long adminMemberId = 1L; // 임시 관리자 ID
+        Long adminMemberId = ((MemberContext) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         RsData<?> rsData = noticeService.deleteNotice(id, adminMemberId);
         if (rsData.isFail()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(rsData);
