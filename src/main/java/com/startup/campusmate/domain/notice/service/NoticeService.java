@@ -162,6 +162,24 @@ public class NoticeService {
         return RsData.of("S-1", "공지사항 생성 성공", notice.getId());
     }
 
+    // 크롤링된 공지사항 저장
+    @Transactional
+    public RsData<Long> createCrawledNotice(String title, String department, String originalUrl) {
+        Notice notice = Notice.builder()
+                .title(title)
+                .content(null) // 크롤링 게시물은 내용이 없음
+                .department(department)
+                .category(NoticeCategory.CRAWLED) // 크롤링 게시물
+                .isCrawled(true)
+                .originalUrl(originalUrl)
+                .author(null) // 크롤링 게시물은 작성자가 없음
+                .build();
+
+        noticeRepository.save(notice);
+
+        return RsData.of("S-1", "크롤링 공지사항 저장 성공", notice.getId());
+    }
+
     // 공지사항 수정 (관리자)
     @Transactional
     public RsData<String> updateNotice(Long id, NoticeUpdateRq rq, Long adminMemberId) {

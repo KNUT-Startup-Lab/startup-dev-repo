@@ -36,6 +36,12 @@ public class SecurityConfig {
                                     .hasRole("ADMIN");
 
                             authorizeRequests
+                                    .requestMatchers(HttpMethod.GET, "/api/notices", "/api/notices/**").hasAnyRole("USER", "ADMIN") // 공지사항 조회 (목록, 상세, URL)
+                                    .requestMatchers(HttpMethod.POST, "/api/notices").hasRole("ADMIN") // 공지사항 생성
+                                    .requestMatchers(HttpMethod.PUT, "/api/notices/**").hasRole("ADMIN") // 공지사항 수정
+                                    .requestMatchers(HttpMethod.DELETE, "/api/notices/**").hasRole("ADMIN") // 공지사항 삭제
+                                    .requestMatchers(HttpMethod.POST, "/api/notices/attachments").hasRole("ADMIN") // 첨부파일 업로드
+                                    .requestMatchers(HttpMethod.GET, "/api/notices/attachments/**").hasAnyRole("USER", "ADMIN") // 첨부파일 다운로드
                                     .anyRequest()
                                     .permitAll();
                         }

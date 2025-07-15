@@ -51,9 +51,7 @@ public class NoticeCrawler {
                 }
 
                 // 크롤링된 공지사항 저장
-                // TODO: NoticeService에 크롤링된 공지사항을 저장하는 별도의 메서드를 추가해야 합니다.
-                // 현재는 임시로 직접 엔티티를 생성하여 저장합니다.
-                // noticeService.createCrawledNotice(title, department, originalUrl);
+                noticeService.createCrawledNotice(title, department, originalUrl);
                 System.out.println("새 공지사항 발견: " + title + " - " + department + " - " + originalUrl);
             }
             System.out.println("크롤링 완료.");
