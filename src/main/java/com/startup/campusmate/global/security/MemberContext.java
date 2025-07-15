@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.User;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class MemberContext extends User {
@@ -28,7 +29,7 @@ public class MemberContext extends User {
         List<GrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_USER"), // 모든 사용자는 기본적으로 USER 권한을 가집니다.
                 member.is_isAdmin() ? new SimpleGrantedAuthority("ROLE_ADMIN") : null // 관리자인 경우 ADMIN 권한을 추가합니다.
-        ).stream().filter(a -> a != null).collect(java.util.stream.Collectors.toList());
+        ).stream().filter(a -> a != null).collect(Collectors.toList());
 
         return new MemberContext(member, authorities);
     }

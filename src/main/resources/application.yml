@@ -9,7 +9,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/mydb
     username: root
-    password: root
+    password: ${custom.prod.database.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -42,6 +42,7 @@ spring:
 app:
   password-reset:
     base-url: https://localhost:8080
+
 
 jwt:
   access-token-validity-ms: 3600000      # 액세스토큰 1시간

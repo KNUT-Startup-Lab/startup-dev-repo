@@ -9,6 +9,7 @@ import com.startup.campusmate.domain.notice.entity.NoticeCategory;
 import com.startup.campusmate.domain.notice.repository.AttachmentRepository;
 import com.startup.campusmate.domain.notice.repository.NoticeRepository;
 import com.startup.campusmate.global.rsData.RsData;
+import jakarta.persistence.criteria.Path;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -108,7 +111,7 @@ public class NoticeService {
                 .size(noticePage.getSize())
                 .build();
 
-        return RsData.of("S-1", "공지사항 목록 조회 성공", response);
+        return RsData.of("200-S1", "공지사항 목록 조회 성공", response);
     }
 
     // 공지사항 상세 조회
@@ -118,7 +121,7 @@ public class NoticeService {
                 .orElse(null);
 
         if (notice == null) {
-            return RsData.of("F-1", "해당 공지사항을 찾을 수 없습니다.");
+            return RsData.of("404-F1", "해당 공지사항을 찾을 수 없습니다.");
         }
 
         // 조회수 증가
@@ -145,7 +148,7 @@ public class NoticeService {
                 .attachments(attachmentDtos)
                 .build();
 
-        return RsData.of("S-1", "공지사항 상세 조회 성공", response);
+        return RsData.of("200-S1", "공지사항 상세 조회 성공", response);
     }
 
     // 크롤링 게시물 원본 URL 조회
@@ -154,14 +157,14 @@ public class NoticeService {
                 .orElse(null);
 
         if (notice == null) {
-            return RsData.of("F-1", "해당 공지사항을 찾을 수 없습니다.");
+            return RsData.of("404-F1", "해당 공지사항을 찾을 수 없습니다.");
         }
 
         if (!notice.isCrawled()) {
-            return RsData.of("F-2", "이 게시물은 크롤링된 게시물이 아닙니다.");
+            return RsData.of("400-F2", "이 게시물은 크롤링된 게시물이 아닙니다.");
         }
 
-        return RsData.of("S-1", "원본 URL 조회 성공", notice.getOriginalUrl());
+        return RsData.of("200-S1", "원본 URL 조회 성공", notice.getOriginalUrl());
     }
 
     // 공지사항 생성 (관리자)
@@ -171,7 +174,7 @@ public class NoticeService {
                 .orElse(null);
 
         if (admin == null || !admin.is_isAdmin()) {
-            return RsData.of("F-1", "관리자 권한이 없습니다.");
+            return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 
         Notice notice = Notice.builder()
@@ -195,7 +198,7 @@ public class NoticeService {
             }
         }
 
-        return RsData.of("S-1", "공지사항 생성 성공", notice.getId());
+        return RsData.of("201-S1", "공지사항 생성 성공", notice.getId());
     }
 
     // 크롤링된 공지사항 저장
@@ -213,7 +216,7 @@ public class NoticeService {
 
         noticeRepository.save(notice);
 
-        return RsData.of("S-1", "크롤링 공지사항 저장 성공", notice.getId());
+        return RsData.of("201-S1", "크롤링 공지사항 저장 성공", notice.getId());
     }
 
     // 공지사항 수정 (관리자)
@@ -223,14 +226,14 @@ public class NoticeService {
                 .orElse(null);
 
         if (notice == null) {
-            return RsData.of("F-1", "해당 공지사항을 찾을 수 없습니다.");
+            return RsData.of("404-F1", "해당 공지사항을 찾을 수 없습니다.");
         }
 
         Member admin = memberRepository.findById(adminMemberId)
                 .orElse(null);
 
         if (admin == null || !admin.is_isAdmin()) {
-            return RsData.of("F-2", "관리자 권한이 없습니다.");
+            return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 
         // 크롤링 게시물은 제목, 부서명만 수정 가능
@@ -275,7 +278,7 @@ public class NoticeService {
 
         noticeRepository.save(notice);
 
-        return RsData.of("S-1", "공지사항 수정 성공");
+        return RsData.of("200-S1", "공지사항 수정 성공");
     }
 
     // 공지사항 삭제 (관리자)
@@ -285,14 +288,14 @@ public class NoticeService {
                 .orElse(null);
 
         if (notice == null) {
-            return RsData.of("F-1", "해당 공지사항을 찾을 수 없습니다.");
+            return RsData.of("404-F1", "해당 공지사항을 찾을 수 없습니다.");
         }
 
         Member admin = memberRepository.findById(adminMemberId)
                 .orElse(null);
 
         if (admin == null || !admin.is_isAdmin()) {
-            return RsData.of("F-2", "관리자 권한이 없습니다.");
+            return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 
         // 연관된 첨부파일 실제 파일 삭제 로직 추가
@@ -301,14 +304,14 @@ public class NoticeService {
         }
         noticeRepository.delete(notice);
 
-        return RsData.of("S-1", "공지사항 삭제 성공");
+        return RsData.of("200-S1", "공지사항 삭제 성공");
     }
 
     // 첨부파일 업로드 (별도 API에서 호출될 예정)
     @Transactional
     public RsData<AttachmentDto> uploadAttachment(MultipartFile file) {
         if (file.isEmpty()) {
-            return RsData.of("F-1", "업로드할 파일이 없습니다.");
+            return RsData.of("400-F1", "업로드할 파일이 없습니다.");
         }
 
         try {
@@ -333,14 +336,14 @@ public class NoticeService {
                     .build();
             attachmentRepository.save(attachment);
 
-            return RsData.of("S-1", "파일 업로드 성공", AttachmentDto.builder()
+            return RsData.of("201-S1", "파일 업로드 성공", AttachmentDto.builder()
                     .file_id(attachment.getId().toString())
                     .filename(attachment.getUploadFileName())
                     .file_url("/api/notices/attachments/" + attachment.getId())
                     .build());
 
         } catch (IOException e) {
-            return RsData.of("F-2", "파일 업로드 실패: " + e.getMessage());
+            return RsData.of("500-F2", "파일 업로드 실패: " + e.getMessage());
         }
     }
 
@@ -350,24 +353,24 @@ public class NoticeService {
                 .orElse(null);
 
         if (attachment == null) {
-            return RsData.of("F-1", "해당 첨부파일을 찾을 수 없습니다.");
+            return RsData.of("404-F1", "해당 첨부파일을 찾을 수 없습니다.");
         }
 
         File file = new File(attachment.getFilePath());
         if (!file.exists() || !file.isFile()) {
-            return RsData.of("F-2", "파일이 존재하지 않거나 유효하지 않습니다.");
+            return RsData.of("404-F2", "파일이 존재하지 않거나 유효하지 않습니다.");
         }
 
-        return RsData.of("S-1", "파일 다운로드 준비 완료", file);
+        return RsData.of("200-S1", "파일 다운로드 준비 완료", file);
     }
 
     // 물리적 파일 삭제 헬퍼 메서드
     private void deletePhysicalFile(String filePath) {
-        File file = new File(filePath);
-        if (file.exists() && file.isFile()) {
-            if (!file.delete()) {
-                System.err.println("파일 삭제 실패: " + filePath);
-            }
+        try {
+            java.nio.file.Path fileToDeletePath = java.nio.file.Paths.get(filePath).toAbsolutePath().normalize();
+            java.nio.file.Files.deleteIfExists(fileToDeletePath);
+        } catch (IOException e) {
+            System.err.println("파일 삭제 실패: " + filePath + ", 오류: " + e.getMessage());
         }
     }
 }
