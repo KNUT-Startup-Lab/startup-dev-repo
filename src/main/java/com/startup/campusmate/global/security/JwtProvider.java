@@ -1,37 +1,39 @@
 package com.startup.campusmate.global.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
 @Component
-public class JwtTokenProvider {
+@Getter
+public class JwtProvider {
     private final Key key;
     private final long ACCESS_TOKEN_EXPIRE = 1000 * 60 * 30; // 30분
     private final long REFRESH_TOKEN_EXPIRE = 1000 * 60 * 60 * 24 * 7; // 7일
 
 
-    public JwtTokenProvider(@Value("${custom.jwt.secret}") String secretKey) {
+    public JwtProvider(@Value("${custom.jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createAccessToken(String email, String userId, String roles) {
+    public String createAccessToken(String email, Long userId, Collection<? extends GrantedAuthority> roles) {
         return createToken(email, userId, roles, ACCESS_TOKEN_EXPIRE);
     }
-    public String createRefreshToken(String email, String userId, String roles) {
+    public String createRefreshToken(String email, Long userId, Collection<? extends GrantedAuthority> roles) {
         return createToken(email, userId, roles, REFRESH_TOKEN_EXPIRE);
     }
 
-    private String createToken(String email, String userId, String roles, long validity) {
+    private String createToken(String email, Long userId, Collection<? extends GrantedAuthority> roles, long validity) {
         Date now = new Date();
         return Jwts.builder()
                 .setSubject(email)
@@ -81,4 +83,12 @@ public class JwtTokenProvider {
         return new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRE);
     }
 
+    public String getUsername(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(this.key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("sub", String.class); // 보통 "sub"에 email/username 저장
+    }
 }

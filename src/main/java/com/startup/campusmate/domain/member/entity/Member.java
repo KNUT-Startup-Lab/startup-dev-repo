@@ -17,15 +17,14 @@ public class Member extends BaseTime {
 
     private String password;
     private String name;
-    private String phoneNum;
 
     @Column(unique = true)
     private String studentNum;
 
+    private String phoneNum;
     private String college;
     private String major;
-
     private String profile_image_url;
 
-    private boolean _isAdmin;
+    private String role;
 }
