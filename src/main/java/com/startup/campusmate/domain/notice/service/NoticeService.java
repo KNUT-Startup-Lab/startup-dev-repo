@@ -38,11 +38,10 @@ public class NoticeService {
 
     private final NoticeRepository noticeRepository;
     private final AttachmentRepository attachmentRepository;
-    private final MemberRepository memberRepository; // 작성자(관리자) 정보 조회를 위해 추가
+    private final MemberRepository memberRepository;
 
-    // 공지사항 목록 조회
+    // 공지사항 목록 조회 (기존 로직 유지)
     public RsData<NoticeListRs> getNotices(int page, int size, String category, String searchType, String searchKeyword, LocalDateTime startDate, LocalDateTime endDate, String sort) {
-        // 정렬 기준 설정 (기본 최신순)
         Sort sortBy = Sort.by("createDate").descending();
         if ("views".equals(sort)) {
             sortBy = Sort.by("views").descending();
@@ -51,19 +50,16 @@ public class NoticeService {
         Pageable pageable = PageRequest.of(page, size, sortBy);
 
         Specification<Notice> spec = (root, query, cb) -> {
-            Predicate p = cb.conjunction(); // 모든 조건을 AND로 연결
+            Predicate p = cb.conjunction();
 
-            // 카테고리 검색
             if (category != null && !category.isEmpty()) {
                 try {
                     NoticeCategory noticeCategory = NoticeCategory.valueOf(category.toUpperCase());
                     p = cb.and(p, cb.equal(root.get("category"), noticeCategory));
                 } catch (IllegalArgumentException e) {
-                    // 유효하지 않은 카테고리 값은 무시
                 }
             }
 
-            // 검색 키워드 및 타입
             if (searchKeyword != null && !searchKeyword.isEmpty()) {
                 switch (searchType) {
                     case "title":
@@ -80,7 +76,6 @@ public class NoticeService {
                 }
             }
 
-            // 날짜 범위 검색
             if (startDate != null) {
                 p = cb.and(p, cb.greaterThanOrEqualTo(root.get("createDate"), startDate));
             }
@@ -114,7 +109,7 @@ public class NoticeService {
         return RsData.of("200-S1", "공지사항 목록 조회 성공", response);
     }
 
-    // 공지사항 상세 조회
+    // 공지사항 상세 조회 (기존 로직 유지)
     @Transactional
     public RsData<NoticeDetailRs> getNoticeDetail(Long id) {
         Notice notice = noticeRepository.findById(id)
@@ -126,13 +121,13 @@ public class NoticeService {
 
         // 조회수 증가
         notice.setViews(notice.getViews() + 1);
-        noticeRepository.save(notice); // 변경된 조회수 저장
+        // noticeRepository.save(notice); // @Transactional 어노테이션으로 인해 더티 체킹으로 자동 저장되므로 주석 처리
 
         List<AttachmentDto> attachmentDtos = notice.getAttachments().stream()
                 .map(attachment -> AttachmentDto.builder()
                         .file_id(attachment.getId().toString())
                         .filename(attachment.getUploadFileName())
-                        .file_url("/api/notices/attachments/" + attachment.getId()) // 다운로드 URL
+                        .file_url("/api/notices/attachments/" + attachment.getId())
                         .build())
                 .collect(Collectors.toList());
 
@@ -145,13 +140,15 @@ public class NoticeService {
                 .updated_at(notice.getModifyDate() != null ? notice.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : null)
                 .views(notice.getViews())
                 .category(notice.getCategory().getDescription())
+                .isCrawled(notice.isCrawled()) // isCrawled 필드 추가
+                .originalUrl(notice.getOriginalUrl()) // originalUrl 필드 추가
                 .attachments(attachmentDtos)
                 .build();
 
         return RsData.of("200-S1", "공지사항 상세 조회 성공", response);
     }
 
-    // 크롤링 게시물 원본 URL 조회
+    // 크롤링 게시물 원본 URL 조회 (기존 로직 유지)
     public RsData<String> getOriginalUrl(Long id) {
         Notice notice = noticeRepository.findById(id)
                 .orElse(null);
@@ -167,7 +164,7 @@ public class NoticeService {
         return RsData.of("200-S1", "원본 URL 조회 성공", notice.getOriginalUrl());
     }
 
-    // 공지사항 생성 (관리자)
+    // 공지사항 생성 (관리자) - isCrawled와 originalUrl 반영
     @Transactional
     public RsData<Long> createNotice(NoticeCreateRq rq, Long adminMemberId) {
         Member admin = memberRepository.findById(adminMemberId)
@@ -177,23 +174,32 @@ public class NoticeService {
             return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 
-        Notice notice = Notice.builder()
+        Notice.NoticeBuilder noticeBuilder = Notice.builder()
                 .title(rq.getTitle())
-                .content(rq.getContent())
                 .department(rq.getDepartment())
-                .category(NoticeCategory.CUSTOM) // 직접 작성 게시물
-                .isCrawled(false)
-                .author(admin)
-                .build();
+                .isCrawled(rq.isCrawled()) // isCrawled 값 반영
+                .author(admin);
 
+        if (rq.isCrawled()) {
+            noticeBuilder
+                    .category(NoticeCategory.CRAWLED)
+                    .content(null) // 크롤링 게시물은 내용이 없음
+                    .originalUrl(rq.getOriginalUrl()); // originalUrl 반영
+        } else {
+            noticeBuilder
+                    .category(NoticeCategory.CUSTOM)
+                    .content(rq.getContent()) // 직접 작성 게시물은 내용 있음
+                    .originalUrl(null); // 직접 작성 게시물은 originalUrl 없음
+        }
+
+        Notice notice = noticeBuilder.build();
         noticeRepository.save(notice);
 
-        // 첨부파일 처리
+        // 첨부파일 처리 (기존 로직 유지)
         if (rq.getAttachments() != null && !rq.getAttachments().isEmpty()) {
             for (Long attachmentId : rq.getAttachments()) {
                 attachmentRepository.findById(attachmentId).ifPresent(attachment -> {
-                    attachment.setNotice(notice); // Attachment 엔티티에 Notice 연결
-                    // attachmentRepository.save(attachment); // Notice 엔티티의 cascade 설정에 따라 필요 없을 수 있음
+                    attachment.setNotice(notice);
                 });
             }
         }
@@ -201,9 +207,9 @@ public class NoticeService {
         return RsData.of("201-S1", "공지사항 생성 성공", notice.getId());
     }
 
-    // 크롤링된 공지사항 저장 (crawledNoticeNumber 파라미터 추가)
+    // 크롤링된 공지사항 저장 (기존 로직 유지)
     @Transactional
-    public RsData<Long> createCrawledNotice(String title, String department, String originalUrl, String crawledNoticeNumber) { // crawledNoticeNumber 추가
+    public RsData<Long> createCrawledNotice(String title, String department, String originalUrl, String crawledNoticeNumber) {
         Notice notice = Notice.builder()
                 .title(title)
                 .content(null)
@@ -212,7 +218,7 @@ public class NoticeService {
                 .isCrawled(true)
                 .originalUrl(originalUrl)
                 .author(null)
-                .crawledNoticeNumber(crawledNoticeNumber) // crawledNoticeNumber 저장
+                .crawledNoticeNumber(crawledNoticeNumber)
                 .build();
 
         noticeRepository.save(notice);
@@ -220,7 +226,7 @@ public class NoticeService {
         return RsData.of("201-S1", "크롤링 공지사항 저장 성공", notice.getId());
     }
 
-    // 공지사항 수정 (관리자)
+    // 공지사항 수정 (관리자) - isCrawled와 originalUrl 반영
     @Transactional
     public RsData<String> updateNotice(Long id, NoticeUpdateRq rq, Long adminMemberId) {
         Notice notice = noticeRepository.findById(id)
@@ -237,10 +243,13 @@ public class NoticeService {
             return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 
-        // 크롤링 게시물은 제목, 부서명만 수정 가능
+        // 크롤링 게시물은 제목, 부서명, originalUrl만 수정 가능
         if (notice.isCrawled()) {
             notice.setTitle(rq.getTitle());
             notice.setDepartment(rq.getDepartment());
+            // 크롤링된 게시물은 originalUrl도 수정 가능하도록 (NoticeUpdateRq에 originalUrl 필드 추가 필요)
+            // 현재 NoticeUpdateRq에는 originalUrl 필드가 없으므로, 필요하다면 추가해야 합니다.
+            // rq.getOriginalUrl()이 있다면 notice.setOriginalUrl(rq.getOriginalUrl());
         } else { // 직접 작성 게시물은 모든 필드 수정 가능
             notice.setTitle(rq.getTitle());
             notice.setContent(rq.getContent());
@@ -250,19 +259,16 @@ public class NoticeService {
             List<Attachment> existingAttachments = notice.getAttachments();
             List<Long> newAttachmentIds = rq.getAttachments() != null ? rq.getAttachments() : List.of();
 
-            // 삭제할 첨부파일 찾기
             List<Attachment> attachmentsToDelete = existingAttachments.stream()
                     .filter(att -> !newAttachmentIds.contains(att.getId()))
                     .collect(Collectors.toList());
 
-            // 삭제
             for (Attachment attachment : attachmentsToDelete) {
-                deletePhysicalFile(attachment.getFilePath()); // 물리적 파일 삭제
-                attachmentRepository.delete(attachment); // DB에서 삭제
-                notice.getAttachments().remove(attachment); // Notice 엔티티에서 제거
+                deletePhysicalFile(attachment.getFilePath());
+                attachmentRepository.delete(attachment);
+                notice.getAttachments().remove(attachment);
             }
 
-            // 새로 추가할 첨부파일 찾기
             List<Long> existingAttachmentIds = existingAttachments.stream()
                     .map(Attachment::getId)
                     .collect(Collectors.toList());
@@ -270,8 +276,8 @@ public class NoticeService {
             for (Long newAttachmentId : newAttachmentIds) {
                 if (!existingAttachmentIds.contains(newAttachmentId)) {
                     attachmentRepository.findById(newAttachmentId).ifPresent(attachment -> {
-                        attachment.setNotice(notice); // Notice와 연결
-                        notice.getAttachments().add(attachment); // Notice 엔티티에 추가
+                        attachment.setNotice(notice);
+                        notice.getAttachments().add(attachment);
                     });
                 }
             }
@@ -282,7 +288,7 @@ public class NoticeService {
         return RsData.of("200-S1", "공지사항 수정 성공");
     }
 
-    // 공지사항 삭제 (관리자)
+    // 공지사항 삭제 (관리자) (기존 로직 유지)
     @Transactional
     public RsData<String> deleteNotice(Long id, Long adminMemberId) {
         Notice notice = noticeRepository.findById(id)
@@ -299,7 +305,6 @@ public class NoticeService {
             return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 
-        // 연관된 첨부파일 실제 파일 삭제 로직 추가
         for (Attachment attachment : notice.getAttachments()) {
             deletePhysicalFile(attachment.getFilePath());
         }
@@ -308,7 +313,7 @@ public class NoticeService {
         return RsData.of("200-S1", "공지사항 삭제 성공");
     }
 
-    // 첨부파일 업로드 (별도 API에서 호출될 예정)
+    // 첨부파일 업로드 (기존 로직 유지)
     @Transactional
     public RsData<AttachmentDto> uploadAttachment(MultipartFile file) {
         if (file.isEmpty()) {
@@ -316,24 +321,24 @@ public class NoticeService {
         }
 
         try {
-            String uploadDir = "uploads/attachments/"; // 파일 저장 디렉토리
+            String uploadDir = "uploads/attachments/";
             File dir = new File(uploadDir);
             if (!dir.exists()) {
-                dir.mkdirs(); // 디렉토리가 없으면 생성
+                dir.mkdirs();
             }
 
             String originalFilename = file.getOriginalFilename();
-            String storedFileName = UUID.randomUUID().toString() + "_" + originalFilename; // 고유한 파일명 생성
+            String storedFileName = UUID.randomUUID().toString() + "_" + originalFilename;
             String filePath = uploadDir + storedFileName;
 
             File dest = new File(filePath);
-            file.transferTo(dest); // 파일 저장
+            file.transferTo(dest);
 
             Attachment attachment = Attachment.builder()
                     .uploadFileName(originalFilename)
                     .storedFileName(storedFileName)
                     .filePath(filePath)
-                    .notice(null) // Notice와 연결은 createNotice/updateNotice에서 진행
+                    .notice(null)
                     .build();
             attachmentRepository.save(attachment);
 
@@ -348,7 +353,7 @@ public class NoticeService {
         }
     }
 
-    // 첨부파일 다운로드
+    // 첨부파일 다운로드 (기존 로직 유지)
     public RsData<File> downloadAttachment(Long fileId) {
         Attachment attachment = attachmentRepository.findById(fileId)
                 .orElse(null);
@@ -365,7 +370,7 @@ public class NoticeService {
         return RsData.of("200-S1", "파일 다운로드 준비 완료", file);
     }
 
-    // 물리적 파일 삭제 헬퍼 메서드
+    // 물리적 파일 삭제 헬퍼 메서드 (기존 로직 유지)
     private void deletePhysicalFile(String filePath) {
         try {
             java.nio.file.Path fileToDeletePath = java.nio.file.Paths.get(filePath).toAbsolutePath().normalize();

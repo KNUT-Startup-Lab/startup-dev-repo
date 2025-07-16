@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,10 +27,12 @@ public class MemberContext extends User {
 
     // Member 객체로부터 MemberContext를 생성하는 팩토리 메서드
     public static MemberContext fromMember(Member member) {
-        List<GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority("ROLE_USER"), // 모든 사용자는 기본적으로 USER 권한을 가집니다.
-                member.is_isAdmin() ? new SimpleGrantedAuthority("ROLE_ADMIN") : null // 관리자인 경우 ADMIN 권한을 추가합니다.
-        ).stream().filter(a -> a != null).collect(Collectors.toList());
+        List<GrantedAuthority> authorities = new ArrayList<>(); // ArrayList로 변경
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER")); // 모든 사용자는 기본적으로 USER 권한을 가집니다.
+
+        if (member.is_isAdmin()) { // 관리자인 경우에만 ADMIN 권한을 추가합니다.
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        }
 
         return new MemberContext(member, authorities);
     }
