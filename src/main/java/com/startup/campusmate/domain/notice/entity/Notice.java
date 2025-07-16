@@ -34,7 +34,10 @@ public class Notice extends BaseTime { // 공통 필드를 가진 BaseEntity를 
     @Column(nullable = false) // null을 허용하지 않는 컬럼입니다.
     private boolean isCrawled; // 크롤링된 게시물인지 여부를 나타내는 플래그
 
-    private String originalUrl; // 크롤링된 게시물의 원본 URL
+    private String originalUrl;
+
+    // 새로 추가될 필드: 크롤링된 공지사항의 순번
+    private String crawledNoticeNumber; // 학교 홈페이지의 problem_number
 
     @ManyToOne(fetch = FetchType.LAZY) // Member 엔티티와 다대일(N:1) 관계를 맺습니다. 지연 로딩을 사용합니다.
     @JoinColumn(name = "member_id") // 외래키 컬럼의 이름을 'member_id'로 지정합니다.
@@ -44,7 +47,7 @@ public class Notice extends BaseTime { // 공통 필드를 가진 BaseEntity를 
     private List<Attachment> attachments = new ArrayList<>(); // 첨부파일 목록
 
     @Builder // Lombok의 빌더 패턴을 사용하여 객체를 생성합니다.
-    public Notice(String title, String content, String department, NoticeCategory category, boolean isCrawled, String originalUrl, Member author) {
+    public Notice(String title, String content, String department, NoticeCategory category, boolean isCrawled, String originalUrl, Member author, String crawledNoticeNumber) { // crawledNoticeNumber 추가
         this.title = title; // 제목 초기화
         this.content = content; // 내용 초기화
         this.department = department; // 부서명 초기화
@@ -52,6 +55,7 @@ public class Notice extends BaseTime { // 공통 필드를 가진 BaseEntity를 
         this.isCrawled = isCrawled; // 크롤링 여부 초기화
         this.originalUrl = originalUrl; // 원본 URL 초기화
         this.author = author; // 작성자 초기화
+        this.crawledNoticeNumber = crawledNoticeNumber; // 필드 초기화
         this.views = 0; // 조회수는 0으로 초기화
     }
 }

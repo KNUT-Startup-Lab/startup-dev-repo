@@ -11,7 +11,7 @@ import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
-    @Value("${custom.jwt.secret}")
+    @Value("U2VjdXJlS2V5Rm9yQ2FtcHVzbWF0ZTIwMjUjQGJhc2U2NF9zYWZlX2tleV90aGlzX3dvcmtzIQ==")
     private String secretKey;
 
     private final long accessTokenValidity = 1000 * 60 * 30; // 30분

@@ -201,17 +201,18 @@ public class NoticeService {
         return RsData.of("201-S1", "공지사항 생성 성공", notice.getId());
     }
 
-    // 크롤링된 공지사항 저장
+    // 크롤링된 공지사항 저장 (crawledNoticeNumber 파라미터 추가)
     @Transactional
-    public RsData<Long> createCrawledNotice(String title, String department, String originalUrl) {
+    public RsData<Long> createCrawledNotice(String title, String department, String originalUrl, String crawledNoticeNumber) { // crawledNoticeNumber 추가
         Notice notice = Notice.builder()
                 .title(title)
-                .content(null) // 크롤링 게시물은 내용이 없음
+                .content(null)
                 .department(department)
-                .category(NoticeCategory.CRAWLED) // 크롤링 게시물
+                .category(NoticeCategory.CRAWLED)
                 .isCrawled(true)
                 .originalUrl(originalUrl)
-                .author(null) // 크롤링 게시물은 작성자가 없음
+                .author(null)
+                .crawledNoticeNumber(crawledNoticeNumber) // crawledNoticeNumber 저장
                 .build();
 
         noticeRepository.save(notice);

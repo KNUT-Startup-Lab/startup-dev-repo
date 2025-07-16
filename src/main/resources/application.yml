@@ -23,10 +23,10 @@ spring:
     serialization:
       fail-on-empty-beans: false
   mail:
-    host: smtp.example.com
+    host: smtp.naver.com
     port: 587
-    username: your-username
-    password: your-password
+    username: "kth4778@naver.com"
+    password: "FB11H5NCKEZW"
     default-encoding: UTF-8
     protocol: smtp
     properties:
@@ -46,7 +46,7 @@ app:
 
 custom:
   jwt:
-    secret: testkey
+    secret: ${custom.jwt.secret}
     access-token-validity-ms: 3600000      # 액세스토큰 1시간
     refresh-token-validity-ms: 86400000    # 리프레시토큰 24시간
 

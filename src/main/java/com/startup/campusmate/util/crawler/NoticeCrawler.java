@@ -39,6 +39,9 @@ public class NoticeCrawler {
                 String originalUrl;
                 String department = row.select("td.problem_name").text();
 
+                // problem_number 추출
+                String problemNumber = row.select("td.problem_number").text(); // <td class="problem_number">199</td> 에서 199 추출
+
                 // 상단 고정 공지사항인지 확인
                 Element pinnedNoticeTitleElement = row.select("td.left div.list_subject span.link a b").first();
 
@@ -58,15 +61,21 @@ public class NoticeCrawler {
                     originalUrl = "https://www.ut.ac.kr" + formAction + "?nttId=" + nttId;
                 }
 
-                // 중복 게시물 확인
+                // 중복 게시물 확인 (problem_number로 먼저 확인)
+                if (noticeRepository.existsByCrawledNoticeNumber(problemNumber)) {
+                    System.out.println("중복 게시물 (순번) 건너뛰기: " + title + " (순번: " + problemNumber + ")");
+                    continue;
+                }
+
+                // 기존 originalUrl 중복 확인 로직은 유지 (혹시 problem_number가 유일하지 않을 경우 대비)
                 if (noticeRepository.existsByOriginalUrl(originalUrl)) {
-                    System.out.println("중복 게시물 건너뛰기: " + title);
+                    System.out.println("중복 게시물 (URL) 건너뛰기: " + title);
                     continue;
                 }
 
                 // 크롤링된 공지사항 저장
-                noticeService.createCrawledNotice(title, department, originalUrl);
-                System.out.println("새 공지사항 발견: " + title + " - " + department + " - " + originalUrl);
+                noticeService.createCrawledNotice(title, department, originalUrl, problemNumber); // problemNumber 전달
+                System.out.println("새 공지사항 발견: " + title + " - " + department + " - " + originalUrl + " (순번: " + problemNumber + ")");
             }
             System.out.println("크롤링 완료.");
 
