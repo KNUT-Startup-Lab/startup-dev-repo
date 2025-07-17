@@ -17,11 +17,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -71,8 +73,8 @@ public class MemberService {
             throw new RuntimeException("비밀번호 불일치");
         }
 
-        String accessToken = jwtProvider.createAccessToken(email);
-        String refreshToken = jwtProvider.createRefreshToken(email);
+        String accessToken = jwtProvider.createAccessToken(email, member.getId(), List.of(new SimpleGrantedAuthority(member.getRole())));
+        String refreshToken = jwtProvider.createRefreshToken(email, member.getId(), List.of(new SimpleGrantedAuthority(member.getRole())));
         Date expiredDate = jwtProvider.getRefreshTokenExpiryDate();
 
         RefreshToken token = RefreshToken.builder()
@@ -109,7 +111,7 @@ public class MemberService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("등록된 이메일이 아닙니다."));
 
-        String refreshToken = jwtProvider.createRefreshToken(email);
+        String refreshToken = jwtProvider.createRefreshToken(email, member.getId(), List.of(new SimpleGrantedAuthority(member.getRole())));
         Date expiredDate = jwtProvider.getRefreshTokenExpiryDate();
 
         RefreshToken resetToken = RefreshToken.builder()

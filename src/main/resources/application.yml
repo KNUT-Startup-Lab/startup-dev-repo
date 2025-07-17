@@ -4,8 +4,7 @@ server:
 
 spring:
   profiles:
-    active: dev
-    include: secret
+    active: secret
   datasource:
     url: jdbc:mysql://localhost:3306/mydb
     username: root
@@ -39,22 +38,9 @@ spring:
           timeout: 5000
           writetimeout: 5000
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id:     ${custom.google.client.id}
-            client-secret: ${custom.google.client.secret}
-            scope:
-              - openid
-              - profile
-              - email
-            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
-
 app:
   password-reset:
-    base-url: https://localhost:8080
+    base-url: http://localhost:8080
 
 logging:
   level:
@@ -62,4 +48,5 @@ logging:
     org.hibernate.SQL: INFO
     org.hibernate.orm.jdbc.bind: INFO
     org.hibernate.orm.jdbc.extract: INFO
+    org.springframework.security: DEBUG
     org.springframework.transaction.interceptor: INFO
