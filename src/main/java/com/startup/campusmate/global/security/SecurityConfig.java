@@ -1,5 +1,6 @@
 package com.startup.campusmate.global.security;
 
+import com.startup.campusmate.global.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

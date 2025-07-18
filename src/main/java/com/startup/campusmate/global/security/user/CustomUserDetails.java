@@ -1,4 +1,4 @@
-package com.startup.campusmate.global.security;
+package com.startup.campusmate.global.security.user;
 
 import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;

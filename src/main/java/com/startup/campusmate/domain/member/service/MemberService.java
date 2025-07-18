@@ -8,7 +8,7 @@ import com.startup.campusmate.domain.token.blacklist.entity.BlackListedToken;
 import com.startup.campusmate.domain.token.blacklist.repository.BlackListRepository;
 import com.startup.campusmate.domain.token.refresh.entity.RefreshToken;
 import com.startup.campusmate.domain.token.refresh.repository.RefreshRepository;
-import com.startup.campusmate.global.security.JwtProvider;
+import com.startup.campusmate.global.security.jwt.JwtProvider;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;

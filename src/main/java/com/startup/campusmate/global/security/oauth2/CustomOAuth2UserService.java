@@ -1,4 +1,4 @@
-package com.startup.campusmate.global.security;
+package com.startup.campusmate.global.security.oauth2;
 
 import com.startup.campusmate.domain.member.entity.Member;
 import com.startup.campusmate.domain.member.repository.MemberRepository;

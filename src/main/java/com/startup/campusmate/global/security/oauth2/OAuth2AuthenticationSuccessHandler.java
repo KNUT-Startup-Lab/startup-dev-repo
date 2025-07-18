@@ -1,9 +1,10 @@
-package com.startup.campusmate.global.security;
+package com.startup.campusmate.global.security.oauth2;
 
 import com.startup.campusmate.domain.member.entity.Member;
 import com.startup.campusmate.domain.member.repository.MemberRepository;
 import com.startup.campusmate.domain.social.entity.MemberSocial;
 import com.startup.campusmate.domain.social.repository.MemberSocialRepository;
+import com.startup.campusmate.global.security.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

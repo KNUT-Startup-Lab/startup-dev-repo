@@ -1,5 +1,6 @@
-package com.startup.campusmate.global.security;
+package com.startup.campusmate.global.security.jwt;
 
+import com.startup.campusmate.global.security.user.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

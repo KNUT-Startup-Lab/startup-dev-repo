@@ -1,4 +1,4 @@
-package com.startup.campusmate.global.security;
+package com.startup.campusmate.global.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
