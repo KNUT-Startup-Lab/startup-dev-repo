@@ -19,6 +19,11 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
     private final MemberService memberService;
 
+    @GetMapping("")
+    public String home() {
+        return "Hello, world!";
+    }
+
     @PostMapping("/signup")
     public RsData<Empty> signup(
             @RequestBody SignupRq signupRq
@@ -82,6 +87,11 @@ public class MemberController {
     public RsData<Boolean> checkEmail(@PathVariable("email") String email) {
         Boolean isAvailable = memberService.isEmailAvailable(email);
         return RsData.of("사용 가능한 이메일", isAvailable);
+    }
+
+    @GetMapping("/socialLogin/{providerTypeCode}")
+    public String socialLogin(@PathVariable String providerTypeCode) {
+        return "redirect:/oauth2/authorization/" + providerTypeCode;
     }
 
 //    @PostMapping("/verify-phone")
