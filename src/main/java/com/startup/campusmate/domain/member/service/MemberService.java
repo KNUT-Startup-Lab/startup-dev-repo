@@ -13,6 +13,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -60,6 +61,7 @@ public class MemberService {
                 .studentNum(dto.getStudentNum())
                 .college(dto.getCollege())
                 .major(dto.getMajor())
+                .role(dto.getRole())
                 .build();
 
         memberRepository.save(member);
@@ -76,9 +78,10 @@ public class MemberService {
         String accessToken = jwtProvider.createAccessToken(email, member.getId(), List.of(new SimpleGrantedAuthority(member.getRole())));
         String refreshToken = jwtProvider.createRefreshToken(email, member.getId(), List.of(new SimpleGrantedAuthority(member.getRole())));
         Date expiredDate = jwtProvider.getRefreshTokenExpiryDate();
+        String tokenHash = hashToken(refreshToken);
 
         RefreshToken token = RefreshToken.builder()
-                .tokenHash(refreshToken)
+                .tokenHash(tokenHash)
                 .member(member)
                 .expiredData(expiredDate)
                 .build();
@@ -113,9 +116,10 @@ public class MemberService {
 
         String refreshToken = jwtProvider.createRefreshToken(email, member.getId(), List.of(new SimpleGrantedAuthority(member.getRole())));
         Date expiredDate = jwtProvider.getRefreshTokenExpiryDate();
+        String tokenHash = hashToken(refreshToken);
 
         RefreshToken resetToken = RefreshToken.builder()
-                .tokenHash(refreshToken)
+                .tokenHash(tokenHash)
                 .member(member)
                 .expiredData(expiredDate)
                 .build();
@@ -169,5 +173,9 @@ public class MemberService {
         return memberRepository.findByNameAndPhoneNum(name, phoneNum)
                 .map(Member::getEmail)
                 .orElseThrow(() -> new IllegalArgumentException("핸드폰 번호 불일치"));
+    }
+
+    public String hashToken(String token) {
+        return DigestUtils.sha256Hex(token);
     }
 }

@@ -18,4 +18,5 @@ public class SignupRq {
     private String phoneNum;
     private String college;
     private String major;
+    private String role;
 }
