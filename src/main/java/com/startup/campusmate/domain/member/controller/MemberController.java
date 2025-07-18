@@ -7,6 +7,7 @@ import com.startup.campusmate.domain.member.dto.auth.session.LoginRq;
 import com.startup.campusmate.domain.member.dto.auth.session.LoginRs;
 import com.startup.campusmate.domain.member.dto.auth.signup.SignupRq;
 import com.startup.campusmate.domain.member.service.MemberService;
+import com.startup.campusmate.global.exceptions.GlobalException;
 import com.startup.campusmate.global.rsData.RsData;
 import com.startup.campusmate.standard.base.Empty;
 import jakarta.mail.MessagingException;
@@ -89,8 +90,11 @@ public class MemberController {
         return RsData.of("사용 가능한 이메일", isAvailable);
     }
 
-    @GetMapping("/socialLogin/{providerTypeCode}")
+    @GetMapping("/social/{providerTypeCode}")
     public String socialLogin(@PathVariable String providerTypeCode) {
+        if ( ! (providerTypeCode.equals("google")) ) {
+            throw new GlobalException("400-1", "%s로는 로그인이 불가능합니다.".formatted(providerTypeCode));
+        }
         return "redirect:/oauth2/authorization/" + providerTypeCode;
     }
 
