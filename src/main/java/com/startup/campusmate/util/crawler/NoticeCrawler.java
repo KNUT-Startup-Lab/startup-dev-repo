@@ -8,6 +8,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,16 +22,18 @@ public class NoticeCrawler {
     private final NoticeService noticeService; // 공지사항 서비스 주입
     private final NoticeRepository noticeRepository; // 중복 확인을 위해 리포지토리 주입
 
+    @Value("${custom.crawler.notice-url}")
+    private String crawlUrl;
+
     // 1시간마다 실행되는 스케줄링 작업 (초 분 시 일 월 요일)
     // 매시 정각에 실행됩니다.
     @Scheduled(cron = "0 0 * * * *")
     @Transactional // 트랜잭션 내에서 동작하도록 설정합니다.
     public void crawlSchoolNotices() {
-        String url = "https://www.ut.ac.kr/cop/bbs/BBSMSTR_000000000141/selectBoardList.do";
-        System.out.println("크롤링 시작: " + url);
+        System.out.println("크롤링 시작: " + crawlUrl);
 
         try {
-            Document doc = Jsoup.connect(url).get();
+            Document doc = Jsoup.connect(crawlUrl).get();
 
             Elements noticeRows = doc.select("table.basic_table.center > tbody > tr");
 

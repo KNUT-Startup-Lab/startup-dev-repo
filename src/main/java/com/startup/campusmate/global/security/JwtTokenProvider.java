@@ -11,7 +11,7 @@ import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
-    @Value("U2VjdXJlS2V5Rm9yQ2FtcHVzbWF0ZTIwMjUjQGJhc2U2NF9zYWZlX2tleV90aGlzX3dvcmtzIQ==")
+    @Value("${custom.jwt.secret}")
     private String secretKey;
 
     private final long accessTokenValidity = 1000 * 60 * 30; // 30분
@@ -47,7 +47,7 @@ public class JwtTokenProvider {
     }
 
     /** 내부용: 토큰 파싱 후 Claims 반환 */
-    public Claims parseClaims(String token) {
+    private Claims parseClaims(String token) {
         try {
             return Jwts.parser()
                     .setSigningKey(secretKey.getBytes())

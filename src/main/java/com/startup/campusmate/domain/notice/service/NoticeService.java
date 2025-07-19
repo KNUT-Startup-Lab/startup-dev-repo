@@ -11,6 +11,7 @@ import com.startup.campusmate.domain.notice.repository.NoticeRepository;
 import com.startup.campusmate.global.rsData.RsData;
 import jakarta.persistence.criteria.Path;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +40,9 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final AttachmentRepository attachmentRepository;
     private final MemberRepository memberRepository;
+
+    @Value("${custom.file.upload-dir}")
+    private String uploadDir;
 
     // 공지사항 목록 조회 (기존 로직 유지)
     public RsData<NoticeListRs> getNotices(int page, int size, String category, String searchType, String searchKeyword, LocalDateTime startDate, LocalDateTime endDate, String sort) {
@@ -89,14 +93,7 @@ public class NoticeService {
         Page<Notice> noticePage = noticeRepository.findAll(spec, pageable);
 
         List<NoticeDto> noticeDtos = noticePage.getContent().stream()
-                .map(notice -> NoticeDto.builder()
-                        .id(notice.getId())
-                        .title(notice.getTitle())
-                        .department(notice.getDepartment())
-                        .created_at(notice.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
-                        .views(notice.getViews())
-                        .category(notice.getCategory().getDescription())
-                        .build())
+                .map(Notice::toDto)
                 .collect(Collectors.toList());
 
         NoticeListRs response = NoticeListRs.builder()
@@ -112,40 +109,12 @@ public class NoticeService {
     // 공지사항 상세 조회 (기존 로직 유지)
     @Transactional
     public RsData<NoticeDetailRs> getNoticeDetail(Long id) {
-        Notice notice = noticeRepository.findById(id)
-                .orElse(null);
-
-        if (notice == null) {
-            return RsData.of("404-F1", "해당 공지사항을 찾을 수 없습니다.");
-        }
-
-        // 조회수 증가
-        notice.setViews(notice.getViews() + 1);
-        // noticeRepository.save(notice); // @Transactional 어노테이션으로 인해 더티 체킹으로 자동 저장되므로 주석 처리
-
-        List<AttachmentDto> attachmentDtos = notice.getAttachments().stream()
-                .map(attachment -> AttachmentDto.builder()
-                        .file_id(attachment.getId().toString())
-                        .filename(attachment.getUploadFileName())
-                        .file_url("/api/notices/attachments/" + attachment.getId())
-                        .build())
-                .collect(Collectors.toList());
-
-        NoticeDetailRs response = NoticeDetailRs.builder()
-                .id(notice.getId())
-                .title(notice.getTitle())
-                .content(notice.getContent())
-                .department(notice.getDepartment())
-                .created_at(notice.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
-                .updated_at(notice.getModifyDate() != null ? notice.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : null)
-                .views(notice.getViews())
-                .category(notice.getCategory().getDescription())
-                .isCrawled(notice.isCrawled()) // isCrawled 필드 추가
-                .originalUrl(notice.getOriginalUrl()) // originalUrl 필드 추가
-                .attachments(attachmentDtos)
-                .build();
-
-        return RsData.of("200-S1", "공지사항 상세 조회 성공", response);
+        return noticeRepository.findById(id)
+                .map(notice -> {
+                    notice.setViews(notice.getViews() + 1);
+                    return RsData.of("200-S1", "공지사항 상세 조회 성공", notice.toDetailRs());
+                })
+                .orElse(RsData.of("404-F1", "해당 공지사항을 찾을 수 없습니다."));
     }
 
     // 크롤링 게시물 원본 URL 조회 (기존 로직 유지)
@@ -321,7 +290,6 @@ public class NoticeService {
         }
 
         try {
-            String uploadDir = "uploads/attachments/";
             File dir = new File(uploadDir);
             if (!dir.exists()) {
                 dir.mkdirs();

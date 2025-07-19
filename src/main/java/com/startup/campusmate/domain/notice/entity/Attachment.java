@@ -1,5 +1,6 @@
 package com.startup.campusmate.domain.notice.entity;
 
+import com.startup.campusmate.domain.notice.dto.AttachmentDto;
 import com.startup.campusmate.global.jpa.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,5 +33,13 @@ public class Attachment extends BaseTime { // 공통 시간 필드를 가진 Bas
         this.storedFileName = storedFileName; // 저장된 파일명 초기화
         this.filePath = filePath; // 파일 경로 초기화
         this.notice = notice; // 연관된 공지사항 초기화
+    }
+
+    public AttachmentDto toDto() {
+        return AttachmentDto.builder()
+                .file_id(this.getId().toString())
+                .filename(this.getUploadFileName())
+                .file_url("/api/notices/attachments/" + this.getId())
+                .build();
     }
 }

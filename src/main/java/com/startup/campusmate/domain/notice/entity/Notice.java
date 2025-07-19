@@ -1,13 +1,17 @@
 package com.startup.campusmate.domain.notice.entity;
 
 import com.startup.campusmate.domain.member.entity.Member;
+import com.startup.campusmate.domain.notice.dto.NoticeDetailRs;
+import com.startup.campusmate.domain.notice.dto.NoticeDto;
 import com.startup.campusmate.global.jpa.BaseEntity;
 import com.startup.campusmate.global.jpa.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity // JPA 엔티티임을 선언합니다.
 @Getter // Lombok을 사용하여 Getter 메서드를 자동으로 생성합니다.
@@ -57,5 +61,32 @@ public class Notice extends BaseTime { // 공통 필드를 가진 BaseEntity를 
         this.author = author; // 작성자 초기화
         this.crawledNoticeNumber = crawledNoticeNumber; // 필드 초기화
         this.views = 0; // 조회수는 0으로 초기화
+    }
+
+    public NoticeDto toDto() {
+        return NoticeDto.builder()
+                .id(this.getId())
+                .title(this.getTitle())
+                .department(this.getDepartment())
+                .created_at(this.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .views(this.getViews())
+                .category(this.getCategory().getDescription())
+                .build();
+    }
+
+    public NoticeDetailRs toDetailRs() {
+        return NoticeDetailRs.builder()
+                .id(this.getId())
+                .title(this.getTitle())
+                .content(this.getContent())
+                .department(this.getDepartment())
+                .created_at(this.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .updated_at(this.getModifyDate() != null ? this.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : null)
+                .views(this.getViews())
+                .category(this.getCategory().getDescription())
+                .isCrawled(this.isCrawled())
+                .originalUrl(this.getOriginalUrl())
+                .attachments(this.getAttachments().stream().map(Attachment::toDto).collect(Collectors.toList()))
+                .build();
     }
 }

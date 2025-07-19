@@ -1,6 +1,7 @@
 package com.startup.campusmate.domain.notice.controller;
 
 import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.startup.campusmate.global.security.MemberContext;
 
 import com.startup.campusmate.domain.notice.dto.NoticeCreateRq;
@@ -11,6 +12,7 @@ import com.startup.campusmate.global.rsData.RsData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -40,21 +43,14 @@ public class NoticeController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false, name = "search_type") String searchType,
             @RequestParam(required = false, name = "search_keyword") String searchKeyword,
-            @RequestParam(required = false, name = "start_date") String startDateStr,
-            @RequestParam(required = false, name = "end_date") String endDateStr,
+            @RequestParam(required = false, name = "start_date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam(required = false, name = "end_date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @RequestParam(defaultValue = "createDate") String sort) {
 
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = null;
+        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59) : null;
 
-        if (startDateStr != null) {
-            startDate = LocalDateTime.parse(startDateStr + " 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        }
-        if (endDateStr != null) {
-            endDate = LocalDateTime.parse(endDateStr + " 23:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        }
-
-        return noticeService.getNotices(page, size, category, searchType, searchKeyword, startDate, endDate, sort);
+        return noticeService.getNotices(page, size, category, searchType, searchKeyword, startDateTime, endDateTime, sort);
     }
 
     // 공지사항 상세 조회
