@@ -1,9 +1,5 @@
 package com.startup.campusmate.domain.notice.controller;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import com.startup.campusmate.global.security.MemberContext;
-
 import com.startup.campusmate.domain.notice.dto.NoticeCreateRq;
 import com.startup.campusmate.domain.notice.dto.NoticeListRs;
 import com.startup.campusmate.domain.notice.dto.NoticeUpdateRq;
@@ -26,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/api/notices")
@@ -76,7 +71,7 @@ public class NoticeController {
     // 직접 작성 게시물 생성 (관리자)
     @PostMapping
     public ResponseEntity<RsData<?>> createNotice(@RequestBody NoticeCreateRq rq) {
-        Long adminMemberId = ((MemberContext) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        long adminMemberId = 1L; // 임시 관리자 ID
         RsData<?> rsData = noticeService.createNotice(rq, adminMemberId);
         if (rsData.isFail()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(rsData);
@@ -87,7 +82,7 @@ public class NoticeController {
     // 직접 작성 게시물 수정 (관리자)
     @PutMapping("/{id}")
     public ResponseEntity<RsData<?>> updateNotice(@PathVariable Long id, @RequestBody NoticeUpdateRq rq) {
-        Long adminMemberId = ((MemberContext) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        long adminMemberId = 1L; // 임시 관리자 ID
         RsData<?> rsData = noticeService.updateNotice(id, rq, adminMemberId);
         if (rsData.isFail()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(rsData);
@@ -98,7 +93,7 @@ public class NoticeController {
     // 게시물 삭제 (관리자)
     @DeleteMapping("/{id}")
     public ResponseEntity<RsData<?>> deleteNotice(@PathVariable Long id) {
-        Long adminMemberId = ((MemberContext) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        long adminMemberId = 1L; // 임시 관리자 ID
         RsData<?> rsData = noticeService.deleteNotice(id, adminMemberId);
         if (rsData.isFail()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(rsData);

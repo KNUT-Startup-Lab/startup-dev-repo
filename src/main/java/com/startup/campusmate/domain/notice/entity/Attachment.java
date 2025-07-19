@@ -24,7 +24,7 @@ public class Attachment extends BaseTime { // 공통 시간 필드를 가진 Bas
     private String filePath; // 파일이 서버에 저장된 경로
 
     @ManyToOne(fetch = FetchType.LAZY) // Notice 엔티티와 다대일(N:1) 관계를 맺습니다. 지연 로딩을 사용합니다.
-    @JoinColumn(name = "notice_id", nullable = false) // 외래키 컬럼의 이름을 'notice_id'로 지정하며, null을 허용하지 않습니다.
+    @JoinColumn(name = "notice_id", nullable = true) // 외래키 컬럼의 이름을 'notice_id'로 지정하며, null을 허용합니다.
     private Notice notice; // 이 첨부파일이 속한 공지사항
 
     @Builder // Lombok의 빌더 패턴을 사용하여 객체를 생성합니다.

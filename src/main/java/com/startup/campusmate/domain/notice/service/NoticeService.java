@@ -9,7 +9,6 @@ import com.startup.campusmate.domain.notice.entity.NoticeCategory;
 import com.startup.campusmate.domain.notice.repository.AttachmentRepository;
 import com.startup.campusmate.domain.notice.repository.NoticeRepository;
 import com.startup.campusmate.global.rsData.RsData;
-import jakarta.persistence.criteria.Path;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -24,10 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -300,7 +296,7 @@ public class NoticeService {
             String filePath = uploadDir + storedFileName;
 
             File dest = new File(filePath);
-            file.transferTo(dest);
+            file.transferTo(dest.getAbsoluteFile());
 
             Attachment attachment = Attachment.builder()
                     .uploadFileName(originalFilename)

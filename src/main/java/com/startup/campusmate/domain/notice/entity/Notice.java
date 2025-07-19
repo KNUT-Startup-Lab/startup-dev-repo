@@ -3,7 +3,6 @@ package com.startup.campusmate.domain.notice.entity;
 import com.startup.campusmate.domain.member.entity.Member;
 import com.startup.campusmate.domain.notice.dto.NoticeDetailRs;
 import com.startup.campusmate.domain.notice.dto.NoticeDto;
-import com.startup.campusmate.global.jpa.BaseEntity;
 import com.startup.campusmate.global.jpa.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
