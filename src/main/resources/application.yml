@@ -9,7 +9,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/mydb
     username: root
-    password: root
+    password: ${custom.prod.database.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -23,10 +23,10 @@ spring:
     serialization:
       fail-on-empty-beans: false
   mail:
-    host: smtp.naver.com
+    host: smtp.example.com
     port: 587
-    username: "kth4778@naver.com"
-    password: "FB11H5NCKEZW"
+    username: your-username
+    password: your-password
     default-encoding: UTF-8
     protocol: smtp
     properties:
@@ -45,6 +45,10 @@ app:
 
 
 custom:
+  file:
+    upload-dir: "uploads/attachments/"
+  crawler:
+    notice-url: "https://www.ut.ac.kr/cop/bbs/BBSMSTR_000000000141/selectBoardList.do"
   jwt:
     secret: ${custom.jwt.secret}
     access-token-validity-ms: 3600000      # 액세스토큰 1시간
