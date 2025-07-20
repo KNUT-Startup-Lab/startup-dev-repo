@@ -1,6 +1,5 @@
 package com.startup.campusmate.util.crawler;
 
-import com.startup.campusmate.domain.notice.entity.NoticeCategory;
 import com.startup.campusmate.domain.notice.repository.NoticeRepository;
 import com.startup.campusmate.domain.notice.service.NoticeService;
 import lombok.RequiredArgsConstructor;
