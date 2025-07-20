@@ -2,6 +2,15 @@ server:
   port: 8080
   shutdown: graceful
 
+logging:
+  level:
+    com.ll.rsv: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.orm.jdbc.bind: INFO
+    org.hibernate.orm.jdbc.extract: INFO
+    org.springframework.security: DEBUG
+    org.springframework.transaction.interceptor: INFO
+
 spring:
   profiles:
     active: secret
@@ -37,15 +46,3 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
-
-app:
-  base-url: http://localhost:8080
-
-logging:
-  level:
-    com.ll.rsv: INFO
-    org.hibernate.SQL: INFO
-    org.hibernate.orm.jdbc.bind: INFO
-    org.hibernate.orm.jdbc.extract: INFO
-    org.springframework.security: DEBUG
-    org.springframework.transaction.interceptor: INFO

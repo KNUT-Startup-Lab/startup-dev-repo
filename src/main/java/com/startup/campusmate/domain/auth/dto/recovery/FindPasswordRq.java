@@ -1,4 +1,4 @@
-package com.startup.campusmate.domain.member.dto.auth.recovery;
+package com.startup.campusmate.domain.auth.dto.recovery;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
