@@ -1,4 +1,4 @@
-package com.startup.campusmate.util.crawler;
+package com.startup.campusmate.standard.crawler;
 
 import com.startup.campusmate.domain.notice.repository.NoticeRepository;
 import com.startup.campusmate.domain.notice.service.NoticeService;
