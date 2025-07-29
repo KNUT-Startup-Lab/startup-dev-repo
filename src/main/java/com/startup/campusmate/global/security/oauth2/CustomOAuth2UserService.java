@@ -34,7 +34,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         // 1) social 매핑 조회
         MemberSocial social = memberSocialRepository
-                .findByProviderAndProviderUserId(provider, providerId)
+                .findByProviderAndProviderId(provider, providerId)
                 .orElse(null);
 
         Member member;
@@ -55,7 +55,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             MemberSocial memberSocial = MemberSocial.builder()
                     .member(member)
                     .provider(provider)
-                    .providerUserId(providerId)
+                    .providerId(providerId)
                     .build();
             memberSocialRepository.save(memberSocial);
         }

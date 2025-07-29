@@ -46,7 +46,7 @@ public class SocialService {
         }
 
         Optional<MemberSocial> socialOpt = memberSocialRepository
-                .findByProviderAndProviderUserId(provider, userInfo.getId());
+                .findByProviderAndProviderId(provider, userInfo.getId());
 
         Member member;
         if (socialOpt.isPresent()) {
@@ -58,7 +58,7 @@ public class SocialService {
                     MemberSocial.builder()
                             .member(member)
                             .provider(provider)
-                            .providerUserId(userInfo.getId())
+                            .providerId(userInfo.getId())
                             .build()
             );
         }

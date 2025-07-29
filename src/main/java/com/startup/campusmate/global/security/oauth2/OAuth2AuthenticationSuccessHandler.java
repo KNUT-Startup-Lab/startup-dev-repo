@@ -42,7 +42,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         // 2) User ↔ UserSocial 매핑
         MemberSocial social = memberSocialRepository
-                .findByProviderAndProviderUserId(provider, providerId)
+                .findByProviderAndProviderId(provider, providerId)
                 .orElse(null);
 
         Member member;
@@ -59,7 +59,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             memberSocialRepository.save(MemberSocial.builder()
                         .member(member)
                         .provider(provider)
-                        .providerUserId(providerId)
+                        .providerId(providerId)
                         .build());
         }
 

@@ -20,5 +20,5 @@ public class MemberSocial extends BaseEntity {
     )
     private Member member;
     private String provider;
-    private String providerUserId; // social ID ex) google_1111111111
+    private String providerId; // social ID ex) google_1111111111
 }
