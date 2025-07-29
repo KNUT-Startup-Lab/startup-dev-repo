@@ -30,6 +30,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String providerId = oauthUser.getAttribute("sub");
         String email      = oauthUser.getAttribute("email");
         String name       = oauthUser.getAttribute("name");
+        String picture       = oauthUser.getAttribute("picture");
 
         // 1) social 매핑 조회
         MemberSocial social = memberSocialRepository
@@ -44,9 +45,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             member = memberRepository.findByEmail(email)
                     .orElseGet(() -> memberRepository.save(
                             Member.builder()
-                            .email(email)
-                            .name(name)
-                            .build()));
+                                    .email(email)
+                                    .name(name)
+                                    .profile_image_url(picture)
+                                    .build()));
 
             // 3) UserSocial 매핑 저장
             assert providerId != null;
@@ -63,6 +65,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 providerId,
                 email,
                 name,
+                picture,
                 oauthUser.getAttributes(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
         );
