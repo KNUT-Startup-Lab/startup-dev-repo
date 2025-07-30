@@ -12,8 +12,8 @@ import java.util.Map;
 
 @Service
 public class GoogleOAuthService {
-    @Value("${custom.app.base-url}")
-    private String baseURL;
+    @Value("${custom.app.backend.base-url}")
+    private String baseUrl;
 
     @Value("${custom.google.client-id}")
     private String googleClientId;

@@ -21,8 +21,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SocialService {
 
-    @Value("${custom.app.base-url}")
-    private String baseURL;
+    @Value("${custom.app.backend.base-url}")
+    private String baseUrl;
 
     private final MemberRepository memberRepository;
     private final MemberSocialRepository memberSocialRepository;
@@ -30,7 +30,7 @@ public class SocialService {
     private final GoogleOAuthService googleOAuthService;
 
     public String getLoginUrl(String provider) {
-        return baseURL + "/oauth2/authorization/" + provider;
+        return baseUrl + "/oauth2/authorization/" + provider;
     }
 
     public SocialLoginRs loginWithToken(String provider, SocialLoginRq rq) {

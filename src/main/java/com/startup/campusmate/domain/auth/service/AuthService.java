@@ -35,7 +35,7 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final JavaMailSender mailSender;
 
-    @Value("${custom.app.base-url}")
+    @Value("${custom.app.backend.base-url}")
     private String baseUrl;
 
     public LoginRs login(String email, String password) {
