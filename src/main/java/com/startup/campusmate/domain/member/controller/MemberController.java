@@ -32,8 +32,6 @@ public class MemberController {
         return ResponseEntity.ok(RsData.of("회원가입이 완료되었습니다."));
     }
 
-
-
     @PutMapping("/password")
     public ResponseEntity<RsData<Empty>> changePassword(@RequestBody ChangePassword changePassword) {
         // 저장소에서 변경하는 코드

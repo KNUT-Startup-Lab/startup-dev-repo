@@ -16,9 +16,10 @@ public class SocialAuthController {
     private final SocialService socialService;
 
     @GetMapping("/{provider}/url")
-    public ResponseEntity<RsData<String>> getSocialLoginUrl(@PathVariable String provider) {
+    public ResponseEntity<String> getSocialLoginUrl(@PathVariable String provider) {
         String url = socialService.getLoginUrl(provider);
-        return ResponseEntity.ok(RsData.of("소셜 로그인 URL", url));
+
+        return ResponseEntity.ok(url);
     }
 
     @PostMapping("/{provider}/login")

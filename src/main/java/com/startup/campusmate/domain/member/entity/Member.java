@@ -24,7 +24,7 @@ public class Member extends BaseTime {
     private String phoneNum;
     private String college;
     private String major;
-    private String profile_image_url;
+    private String profileImageUrl;
 
     private String role;
 }
