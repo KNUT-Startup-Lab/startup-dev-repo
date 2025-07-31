@@ -1,6 +1,6 @@
 package com.startup.campusmate.global.security.jwt;
 
-import com.startup.campusmate.global.security.user.CustomUserDetailsService;
+import com.startup.campusmate.global.security.member.CustomMemberDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +20,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomMemberDetailsService customUserDetailsService;
 
     @Override
     protected void doFilterInternal(

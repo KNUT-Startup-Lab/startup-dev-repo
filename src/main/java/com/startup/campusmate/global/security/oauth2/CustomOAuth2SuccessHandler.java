@@ -23,7 +23,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtProvider tokenProvider;
     private final MemberRepository memberRepository;

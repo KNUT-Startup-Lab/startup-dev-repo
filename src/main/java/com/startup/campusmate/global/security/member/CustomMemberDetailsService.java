@@ -1,4 +1,4 @@
-package com.startup.campusmate.global.security.user;
+package com.startup.campusmate.global.security.member;
 
 import com.startup.campusmate.domain.member.entity.Member;
 import com.startup.campusmate.domain.member.repository.MemberRepository;
@@ -14,7 +14,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomMemberDetailsService implements UserDetailsService {
     private final MemberRepository memberRepository;
 
     @Override
@@ -24,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         // 권한 변환
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(member.getRole()));
-        return new CustomUserDetails(
+        return new CustomMemberDetails(
                 member.getId(),
                 member.getEmail(),
                 member.getPassword(),
