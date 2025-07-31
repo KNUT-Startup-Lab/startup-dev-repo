@@ -1,0 +1,49 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+logging:
+  level:
+    com.ll.rsv: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.orm.jdbc.bind: INFO
+    org.hibernate.orm.jdbc.extract: INFO
+    org.springframework.security: DEBUG
+    org.springframework.transaction.interceptor: INFO
+    org.springframework.security.oauth2.client.endpoint: DEBUG
+
+spring:
+  profiles:
+    active: secret
+  datasource:
+    url: jdbc:mysql://localhost:3306/mydb
+    username: root
+    password: 2483
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+        highlight_sql: false
+        use_sql_comments: false
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+  mail:
+    host: smtp.example.com
+    port: 587
+    username: your-username
+    password: your-password
+    default-encoding: UTF-8
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
