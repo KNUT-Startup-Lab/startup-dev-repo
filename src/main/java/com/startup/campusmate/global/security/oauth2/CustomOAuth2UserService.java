@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -27,37 +28,44 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User oauthUser = super.loadUser(userRequest);
 
         String provider = userRequest.getClientRegistration().getRegistrationId();  // "google"
-        String providerId = oauthUser.getAttribute("sub");
-        String email      = oauthUser.getAttribute("email");
-        String name       = oauthUser.getAttribute("name");
-        String picture       = oauthUser.getAttribute("picture");
+
+        Map<String, Object> kakaoAccount = oauthUser.getAttribute("kakao_account");
+        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+
+        Object id = oauthUser.getAttribute("id");
+        System.out.println("ID Type: " + id.getClass());  // ← 실제 타입 Long 확인
+        String providerId = id != null ? id.toString() : null;
+
+        String email = kakaoAccount.get("email") != null ? (String) kakaoAccount.get("email") : providerId + "@kakao.com";
+        String name = (String) profile.get("nickname");
+        String picture = (String) profile.get("profile_image_url");
+
 
         // 1) social 매핑 조회
         MemberSocial social = memberSocialRepository
                 .findByProviderAndProviderId(provider, providerId)
                 .orElse(null);
 
-        Member member;
-        if (social != null) {
-            member = social.getMember();
-        } else {
-            // 2) 이메일 매칭
-            member = memberRepository.findByEmail(email)
-                    .orElseGet(() -> memberRepository.save(
-                            Member.builder()
-                                    .email(email)
-                                    .name(name)
-                                    .profile_image_url(picture)
-                                    .build()));
+        Member member = memberRepository.findByEmail(email)
+                .orElse(null);
 
-            // 3) UserSocial 매핑 저장
-            assert providerId != null;
-            MemberSocial memberSocial = MemberSocial.builder()
-                    .member(member)
-                    .provider(provider)
-                    .providerId(providerId)
-                    .build();
-            memberSocialRepository.save(memberSocial);
+        if (member == null) {
+            member = memberRepository.save(Member.builder()
+                    .email(email)
+                    .name(name)
+                    .profileImageUrl(picture)
+                    .build());
+        } else {
+            // 이미 등록된 이메일일 경우, 기존 계정에 소셜 연결만
+            // 중복 저장 방지
+            if (!memberSocialRepository.existsByMemberAndProvider(member, provider)) {
+                MemberSocial memberSocial = MemberSocial.builder()
+                        .member(member)
+                        .provider(provider)
+                        .providerId(providerId)
+                        .build();
+                memberSocialRepository.save(memberSocial);
+            }
         }
 
         return new CustomOAuth2User(

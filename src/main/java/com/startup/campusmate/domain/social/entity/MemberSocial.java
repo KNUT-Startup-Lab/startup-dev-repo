@@ -3,14 +3,14 @@ package com.startup.campusmate.domain.social.entity;
 import com.startup.campusmate.domain.member.entity.Member;
 import com.startup.campusmate.global.jpa.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MemberSocial extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
