@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class LogoutRq {
-    private String email;
+    private String username;
     private String password;
 }

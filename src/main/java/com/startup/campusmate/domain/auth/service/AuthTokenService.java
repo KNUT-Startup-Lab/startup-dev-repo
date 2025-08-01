@@ -1,42 +1,45 @@
-package com.startup.campusmate.global.security.jwt;
+package com.startup.campusmate.domain.auth.service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
-@Component
+@Service
+@RequiredArgsConstructor
 @Getter
-public class JwtProvider {
+public class AuthTokenService {
+
     private final Key key;
     private final long ACCESS_TOKEN_EXPIRE = 1000 * 60 * 30; // 30분
     private final long REFRESH_TOKEN_EXPIRE = 1000 * 60 * 60 * 24 * 7; // 7일
 
 
-    public JwtProvider(@Value("${custom.jwt.secret}") String secretKey) {
+    public AuthTokenService(@Value("${custom.jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createAccessToken(String email, Long userId, Collection<? extends GrantedAuthority> roles) {
-        return createToken(email, userId, roles, ACCESS_TOKEN_EXPIRE);
+    public String createAccessToken(String username, Long userId, Collection<? extends GrantedAuthority> roles) {
+        return createToken(username, userId, roles, ACCESS_TOKEN_EXPIRE);
     }
-    public String createRefreshToken(String email, Long userId, Collection<? extends GrantedAuthority> roles) {
-        return createToken(email, userId, roles, REFRESH_TOKEN_EXPIRE);
+    public String createRefreshToken(String username, Long userId, Collection<? extends GrantedAuthority> roles) {
+        return createToken(username, userId, roles, REFRESH_TOKEN_EXPIRE);
     }
 
-    private String createToken(String email, Long userId, Collection<? extends GrantedAuthority> roles, long validity) {
+    private String createToken(String username, Long userId, Collection<? extends GrantedAuthority> roles, long validity) {
         Date now = new Date();
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(username)
                 .setId(UUID.randomUUID().toString())
                 .claim("userId", userId)
                 .claim("roles", roles)
@@ -92,3 +95,4 @@ public class JwtProvider {
         return claims.get("sub", String.class); // 보통 "sub"에 email/username 저장
     }
 }
+

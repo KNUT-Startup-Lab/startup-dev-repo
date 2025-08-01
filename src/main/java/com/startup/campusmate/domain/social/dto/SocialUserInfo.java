@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class SocialUserInfo {
     private String id;
-    private String email;
-    private String name;
+    private String username;
+    private String nickname;
 
 }

@@ -6,7 +6,7 @@ import lombok.NonNull;
 @Getter
 public class LoginRq {
     @NonNull
-    private String email;
+    private String username;
     @NonNull
     private String password;
 }

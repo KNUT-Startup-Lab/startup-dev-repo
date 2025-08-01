@@ -1,7 +1,7 @@
 package com.startup.campusmate.domain.member.controller;
 
 import com.startup.campusmate.domain.auth.dto.recovery.ChangePassword;
-import com.startup.campusmate.domain.auth.dto.signup.SignupRq;
+import com.startup.campusmate.domain.member.dto.SignupRq;
 import com.startup.campusmate.domain.member.service.MemberService;
 import com.startup.campusmate.global.exceptions.GlobalException;
 import com.startup.campusmate.global.rsData.RsData;
@@ -19,7 +19,7 @@ public class MemberController {
 
     @PostMapping("")
     public ResponseEntity<RsData<Empty>> signup(@RequestBody SignupRq signupRq) {
-        if ( Ut.str.isBlank(signupRq.getEmail()) ) {
+        if ( Ut.str.isBlank(signupRq.getUsername()) ) {
             throw new GlobalException("400-1", "이메일 공백은 지원하지 않습니다.");
         }
         if ( Ut.str.isBlank(signupRq.getStudentNum()) ) {

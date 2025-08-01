@@ -1,5 +1,6 @@
 package com.startup.campusmate.domain.social.service;
 
+import com.startup.campusmate.domain.auth.service.AuthTokenService;
 import com.startup.campusmate.domain.member.entity.Member;
 import com.startup.campusmate.domain.member.repository.MemberRepository;
 import com.startup.campusmate.domain.social.dto.SocialLoginRq;
@@ -8,7 +9,6 @@ import com.startup.campusmate.domain.social.dto.SocialUserInfo;
 import com.startup.campusmate.domain.social.entity.MemberSocial;
 import com.startup.campusmate.domain.social.repository.MemberSocialRepository;
 import com.startup.campusmate.global.exceptions.GlobalException;
-import com.startup.campusmate.global.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,7 +26,7 @@ public class SocialService {
 
     private final MemberRepository memberRepository;
     private final MemberSocialRepository memberSocialRepository;
-    private final JwtProvider jwtProvider;
+    private final AuthTokenService authTokenService;
     private final GoogleOAuthService googleOAuthService;
 
     public String getLoginUrl(String provider) {
@@ -52,7 +52,7 @@ public class SocialService {
         if (socialOpt.isPresent()) {
             member = socialOpt.get().getMember();
         } else {
-            Optional<Member> memberOpt = memberRepository.findByEmail(userInfo.getEmail());
+            Optional<Member> memberOpt = memberRepository.findByUsername(userInfo.getEmail());
             member = memberOpt.orElseGet(() -> registerNewSocialMember(userInfo));
             memberSocialRepository.save(
                     MemberSocial.builder()
@@ -63,10 +63,10 @@ public class SocialService {
             );
         }
 
-        String jwt = jwtProvider.createAccessToken(
-                member.getEmail(),
+        String jwt = authTokenService.createAccessToken(
+                member.getUsername(),
                 member.getId(),
-                List.of(new SimpleGrantedAuthority(member.getRole()))
+                member.getAuthorities()
         );
 
         return new SocialLoginRs(member, jwt);
@@ -74,12 +74,11 @@ public class SocialService {
 
     public Member registerNewSocialMember(SocialUserInfo userInfo) {
         Member member = Member.builder()
-                .email(userInfo.getEmail())
-                .name(userInfo.getName())
+                .username(userInfo.getUsername())
+                .nickname(userInfo.getNickname())
                 .studentNum(null)
-                .role("ROLE_USER")   // 기본 권한
                 .build();
-
+        member.setAdmin(false);
         return memberRepository.save(member);
     }
 

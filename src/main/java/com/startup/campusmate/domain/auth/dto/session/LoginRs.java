@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class LoginRs {
-    private String email;
+    private String username;
     private String accessToken;
     private String refreshToken;
 }

@@ -1,4 +1,4 @@
-package com.startup.campusmate.domain.auth.dto.signup;
+package com.startup.campusmate.domain.member.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
@@ -8,15 +8,12 @@ import lombok.Getter;
 @Builder
 public class SignupRq {
     @NotBlank
-    private String email;
+    private String username;
     @NotBlank
     private String studentNum;
     @NotBlank
     private String password;
 
-    private String name;
-    private String phoneNum;
+    private String nickname;
     private String college;
-    private String major;
-    private String role;
 }

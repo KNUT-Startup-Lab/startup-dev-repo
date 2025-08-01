@@ -135,7 +135,7 @@ public class NoticeService {
         Member admin = memberRepository.findById(adminMemberId)
                 .orElse(null);
 
-        if (admin == null || admin.getRole().equals("ROLE_USER")) {
+        if (admin == null || admin.isAdmin()) {
             return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 
@@ -204,7 +204,7 @@ public class NoticeService {
         Member admin = memberRepository.findById(adminMemberId)
                 .orElse(null);
 
-        if (admin == null || admin.getRole().equals("ROLE_USER")) {
+        if (admin == null || admin.isAdmin()) {
             return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 
@@ -266,7 +266,7 @@ public class NoticeService {
         Member admin = memberRepository.findById(adminMemberId)
                 .orElse(null);
 
-        if (admin == null || admin.getRole().equals("ROLE_USER")) {
+        if (admin == null || admin.isAdmin()admin.isAdmin()) {
             return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 

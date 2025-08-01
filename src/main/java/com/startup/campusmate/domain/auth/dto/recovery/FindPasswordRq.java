@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 public class FindPasswordRq {
     @NotBlank
-    private String email;
+    private String username;
     @NotBlank
     private String phoneNum;
 }

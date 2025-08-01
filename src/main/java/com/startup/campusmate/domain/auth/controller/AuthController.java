@@ -5,7 +5,6 @@ import com.startup.campusmate.domain.auth.dto.recovery.FindPasswordRq;
 import com.startup.campusmate.domain.auth.dto.session.LoginRq;
 import com.startup.campusmate.domain.auth.dto.session.LoginRs;
 import com.startup.campusmate.domain.auth.service.AuthService;
-import com.startup.campusmate.domain.member.service.MemberService;
 import com.startup.campusmate.global.exceptions.GlobalException;
 import com.startup.campusmate.global.rsData.RsData;
 import com.startup.campusmate.standard.base.Empty;
@@ -24,7 +23,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<RsData<LoginRs>> login(@RequestBody LoginRq loginRq) {
-        LoginRs login = authService.login(loginRq.getEmail(), loginRq.getPassword());
+        LoginRs login = authService.login(loginRq.getUsername(), loginRq.getPassword());
         return ResponseEntity.ok(RsData.of("로그인 성공", login));
     }
 
@@ -38,9 +37,9 @@ public class AuthController {
     }
 
     @PostMapping("/find-id")
-    public ResponseEntity<RsData<String>> findMemberId(@RequestBody FindIdRq findIdRq) {
+    public ResponseEntity<RsData<String>> findMemberUsername(@RequestBody FindIdRq findIdRq) {
         // 저장소에서 해당 이메일 찾기
-        String email = authService.findMemberId(findIdRq.getName(), findIdRq.getPhoneNum());
+        String email = authService.findMemberUsername(findIdRq.getNickname(), findIdRq.getPhoneNum());
 
         if (email == null) throw new GlobalException("이메일 찾기 실패");
 
@@ -51,13 +50,13 @@ public class AuthController {
     public ResponseEntity<RsData<Empty>> findPassword(@RequestBody FindPasswordRq findPasswordRq) {
         //이메일 발송
         try {
-            if ( Ut.str.isBlank(findPasswordRq.getEmail()) ) {
+            if ( Ut.str.isBlank(findPasswordRq.getUsername()) ) {
                 throw new GlobalException("400-1", "이메일 공백은 지원하지 않습니다.");
             }
             if ( Ut.str.isBlank(findPasswordRq.getPhoneNum()) ) {
                 throw new GlobalException("400-1", "전화번호 공백은 지원하지 않습니다.");
             }
-            authService.sendResetLink(findPasswordRq.getEmail());
+            authService.sendResetLink(findPasswordRq.getUsername());
             return ResponseEntity.ok(RsData.of("재설정 링크 발송 완료"));
         } catch (MessagingException e) {
             throw new GlobalException("메일 전송 실패");
