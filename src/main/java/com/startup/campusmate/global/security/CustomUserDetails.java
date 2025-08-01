@@ -1,4 +1,4 @@
-package com.startup.campusmate.global.security.member;
+package com.startup.campusmate.global.security;
 
 import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,15 +7,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @Builder
-public class CustomMemberDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails {
     private final Long id;
     private final String email;
     private final String password;
     private final String name;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomMemberDetails(Long id, String email, String password, String name,
-                               Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(Long id, String email, String password, String name,
+                             Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;

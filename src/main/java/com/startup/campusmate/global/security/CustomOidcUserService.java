@@ -1,9 +1,9 @@
-package com.startup.campusmate.global.security.oauth2;
+package com.startup.campusmate.global.security;
 
-import com.startup.campusmate.domain.member.entity.Member;
-import com.startup.campusmate.domain.member.repository.MemberRepository;
-import com.startup.campusmate.domain.social.entity.MemberSocial;
-import com.startup.campusmate.domain.social.repository.MemberSocialRepository;
+import com.startup.campusmate.domain.member.member.entity.Member;
+import com.startup.campusmate.domain.member.member.repository.MemberRepository;
+import com.startup.campusmate.domain.member.social.entity.MemberSocial;
+import com.startup.campusmate.domain.member.social.repository.MemberSocialRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -46,10 +46,10 @@ public class CustomOidcUserService extends OidcUserService {
             member = social.getMember();
         } else {
             // 2. 이메일로 기존 회원 탐색 또는 신규 생성
-            member = memberRepository.findByEmail(email)
+            member = memberRepository.findByUsername(email)
                     .orElseGet(() -> memberRepository.save(
                             Member.builder()
-                                    .email(email)
+                                    .username(email)
                                     .name(name)
                                     .profileImageUrl(picture)
                                     .build()));

@@ -1,9 +1,9 @@
-package com.startup.campusmate.global.security.oauth2;
+package com.startup.campusmate.global.security;
 
-import com.startup.campusmate.domain.member.entity.Member;
-import com.startup.campusmate.domain.member.repository.MemberRepository;
-import com.startup.campusmate.domain.social.entity.MemberSocial;
-import com.startup.campusmate.domain.social.repository.MemberSocialRepository;
+import com.startup.campusmate.domain.member.member.entity.Member;
+import com.startup.campusmate.domain.member.member.repository.MemberRepository;
+import com.startup.campusmate.domain.member.social.entity.MemberSocial;
+import com.startup.campusmate.domain.member.social.repository.MemberSocialRepository;
 import com.startup.campusmate.global.security.jwt.JwtProvider;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
@@ -82,14 +82,14 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             member = social.getMember();
         } else {
             // 이메일로 기존 멤버 탐색
-            Optional<Member> existingMember = memberRepository.findByEmail(email);
+            Optional<Member> existingMember = memberRepository.findByUsername(email);
 
             if (existingMember.isPresent()) {
                 member = existingMember.get();
             } else {
                 // 새로 생성 및 저장
                 member = Member.builder()
-                        .email(email)
+                        .username(email)
                         .name(name)
                         .profileImageUrl(picture)  // 선택사항
                         .build();
@@ -109,8 +109,8 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         response.setCharacterEncoding("UTF-8");
 
         // 3) JWT 토큰 생성
-        String accessToken  = tokenProvider.createAccessToken(member.getEmail(), member.getId(), authorities);
-        String refreshToken = tokenProvider.createRefreshToken(member.getEmail(), member.getId(), authorities);
+        String accessToken  = tokenProvider.createAccessToken(member.getUsername(), member.getId(), authorities);
+        String refreshToken = tokenProvider.createRefreshToken(member.getUsername(), member.getId(), authorities);
 
         // 4) 응답 헤더 또는 바디에 토큰 전송
         response.addHeader("Authorization", "Bearer " + accessToken);

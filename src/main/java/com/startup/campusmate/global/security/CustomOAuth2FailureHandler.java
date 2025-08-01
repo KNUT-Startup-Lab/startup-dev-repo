@@ -1,4 +1,4 @@
-package com.startup.campusmate.global.security.oauth2;
+package com.startup.campusmate.global.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
