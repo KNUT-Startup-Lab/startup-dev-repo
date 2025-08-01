@@ -1,7 +1,7 @@
 package com.startup.campusmate.domain.notice.service;
 
-import com.startup.campusmate.domain.member.entity.Member;
-import com.startup.campusmate.domain.member.repository.MemberRepository;
+import com.startup.campusmate.domain.member.member.entity.Member;
+import com.startup.campusmate.domain.member.member.repository.MemberRepository;
 import com.startup.campusmate.domain.notice.dto.*;
 import com.startup.campusmate.domain.notice.entity.Attachment;
 import com.startup.campusmate.domain.notice.entity.Notice;
