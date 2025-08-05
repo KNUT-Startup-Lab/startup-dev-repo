@@ -6,6 +6,7 @@ import com.startup.campusmate.domain.member.member.repository.MemberRepository;
 import com.startup.campusmate.domain.member.auth.entity.BlackListedToken;
 import com.startup.campusmate.domain.member.auth.repository.BlackListRepository;
 import com.startup.campusmate.global.exceptions.GlobalException;
+import com.startup.campusmate.global.security.JwtTokenProvider;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final BlackListRepository blackListRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthTokenService authTokenService;
+    private final JwtTokenProvider jwtTokenProvider;
     private final SendMailService sendMailService;
 
     @Value("${custom.app.backend.base-url}")
@@ -36,8 +37,8 @@ public class AuthService {
             throw new GlobalException("비밀번호 불일치");
         }
 
-        String accessToken = authTokenService.createAccessToken(username, member.getId(), member.getAuthorities());
-        String refreshToken = authTokenService.createRefreshToken(username, member.getId(), member.getAuthorities());
+        String accessToken = jwtTokenProvider.createAccessToken(username, member.getId(), member.getAuthorities());
+        String refreshToken = jwtTokenProvider.createRefreshToken(username, member.getId(), member.getAuthorities());
 //        Date expiredDate = authTokenService.getRefreshTokenExpiryDate();
 //        String tokenHash = DigestUtils.sha256Hex(refreshToken);
 
@@ -55,8 +56,8 @@ public class AuthService {
     public void logout(String accessToken, String refreshToken) {
         memberRepository.deleteByRefreshToken(refreshToken);
 
-        String jti = authTokenService.getJti(accessToken);
-        Date expiredDate = authTokenService.getExpiry(accessToken);
+        String jti = jwtTokenProvider.getJti(accessToken);
+        Date expiredDate = jwtTokenProvider.getExpiry(accessToken);
 
         BlackListedToken token = BlackListedToken.builder()
                 .jti(jti)
@@ -70,8 +71,8 @@ public class AuthService {
         Member member = memberRepository.findByUsername(email)
                 .orElseThrow(() -> new GlobalException("등록된 이메일이 아닙니다."));
 
-        String refreshToken = authTokenService.createRefreshToken(email, member.getId(), member.getAuthorities());
-        Date expiredDate = authTokenService.getRefreshTokenExpiryDate();
+        String refreshToken = jwtTokenProvider.createRefreshToken(email, member.getId(), member.getAuthorities());
+        Date expiredDate = jwtTokenProvider.getRefreshTokenExpiryDate();
 //        String tokenHash = DigestUtils.sha256Hex(refreshToken);
 
         member.setRefreshToken(refreshToken);

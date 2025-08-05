@@ -3,7 +3,6 @@ package com.startup.campusmate.domain.member.member.service;
 import com.startup.campusmate.domain.member.member.dto.SignupRq;
 import com.startup.campusmate.domain.member.member.entity.Member;
 import com.startup.campusmate.domain.member.member.repository.MemberRepository;
-import com.startup.campusmate.domain.member.social.entity.MemberSocial;
 import com.startup.campusmate.domain.member.social.repository.MemberSocialRepository;
 import com.startup.campusmate.global.exceptions.GlobalException;
 import jakarta.transaction.Transactional;
@@ -23,7 +22,7 @@ public class MemberService {
 
     public void signup(SignupRq signupRq) {
         // 이메일 중복 체크
-        if (memberRepository.existsByEmail(signupRq.getUsername())) {
+        if (memberRepository.existsByUsername(signupRq.getUsername())) {
             throw new GlobalException("이미 존재하는 유저이름입니다.");
         }
 
@@ -66,33 +65,4 @@ public class MemberService {
         return memberRepository.findByUsername(email).isEmpty();
     }
 
-    public Member modifyOrJoin(String username, String nickname, String provider,String providerId, String profileImageUrl) {
-        MemberSocial social = memberSocialRepository
-                .findByProviderAndProviderId(provider, providerId)
-                .orElse(null);
-
-        Member member = memberRepository.findByUsername(username)
-                .orElse(null);
-
-        if (member == null) {
-            member = memberRepository.save(Member.builder()
-                    .username(username)
-                    .nickname(nickname)
-                    .profileImageUrl(profileImageUrl)
-                    .build());
-
-        } else {
-            // 이미 등록된 이메일일 경우, 기존 계정에 소셜 연결만
-            // 중복 저장 방지
-            if (!memberSocialRepository.existsByMemberAndProvider(member, provider)) {
-                MemberSocial memberSocial = MemberSocial.builder()
-                        .member(member)
-                        .provider(provider)
-                        .providerId(providerId)
-                        .build();
-                memberSocialRepository.save(memberSocial);
-            }
-        }
-        return member;
-    }
 }

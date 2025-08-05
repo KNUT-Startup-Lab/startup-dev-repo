@@ -50,7 +50,7 @@ public class CustomOidcUserService extends OidcUserService {
                     .orElseGet(() -> memberRepository.save(
                             Member.builder()
                                     .username(email)
-                                    .name(name)
+                                    .nickname(name)
                                     .profileImageUrl(picture)
                                     .build()));
 

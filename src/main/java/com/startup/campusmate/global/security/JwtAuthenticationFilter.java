@@ -1,6 +1,5 @@
 package com.startup.campusmate.global.security;
 
-import com.startup.campusmate.domain.member.auth.service.AuthTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +18,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final AuthTokenService authTokenService;
+    private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
 
     @Override
@@ -45,8 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             } else {
                 token = header; // Bearer 없으면 그냥 전체를 JWT로 취급
             }
-            if (authTokenService.validateToken(token)) {
-                String username = authTokenService.getUsername(token);
+            if (jwtTokenProvider.validateToken(token)) {
+                String username = jwtTokenProvider.getUsername(token);
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
                 var auth = new UsernamePasswordAuthenticationToken(
                         userDetails,

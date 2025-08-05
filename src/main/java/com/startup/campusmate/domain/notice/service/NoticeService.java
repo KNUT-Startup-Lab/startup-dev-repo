@@ -266,7 +266,7 @@ public class NoticeService {
         Member admin = memberRepository.findById(adminMemberId)
                 .orElse(null);
 
-        if (admin == null || admin.isAdmin()admin.isAdmin()) {
+        if (admin == null || admin.isAdmin()) {
             return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 

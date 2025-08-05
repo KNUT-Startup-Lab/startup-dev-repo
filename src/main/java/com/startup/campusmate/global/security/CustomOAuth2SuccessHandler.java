@@ -4,7 +4,6 @@ import com.startup.campusmate.domain.member.member.entity.Member;
 import com.startup.campusmate.domain.member.member.repository.MemberRepository;
 import com.startup.campusmate.domain.member.social.entity.MemberSocial;
 import com.startup.campusmate.domain.member.social.repository.MemberSocialRepository;
-import com.startup.campusmate.global.security.jwt.JwtProvider;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final JwtProvider tokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
     private final MemberSocialRepository memberSocialRepository;
 
@@ -90,7 +89,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
                 // 새로 생성 및 저장
                 member = Member.builder()
                         .username(email)
-                        .name(name)
+                        .nickname(name)
                         .profileImageUrl(picture)  // 선택사항
                         .build();
                 member = memberRepository.save(member);
@@ -109,8 +108,8 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         response.setCharacterEncoding("UTF-8");
 
         // 3) JWT 토큰 생성
-        String accessToken  = tokenProvider.createAccessToken(member.getUsername(), member.getId(), authorities);
-        String refreshToken = tokenProvider.createRefreshToken(member.getUsername(), member.getId(), authorities);
+        String accessToken  = jwtTokenProvider.createAccessToken(member.getUsername(), member.getId(), authorities);
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getUsername(), member.getId(), authorities);
 
         // 4) 응답 헤더 또는 바디에 토큰 전송
         response.addHeader("Authorization", "Bearer " + accessToken);

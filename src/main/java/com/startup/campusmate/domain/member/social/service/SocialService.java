@@ -1,6 +1,6 @@
 package com.startup.campusmate.domain.member.social.service;
 
-import com.startup.campusmate.domain.member.auth.service.AuthTokenService;
+import com.startup.campusmate.global.security.JwtTokenProvider;
 import com.startup.campusmate.domain.member.member.entity.Member;
 import com.startup.campusmate.domain.member.member.repository.MemberRepository;
 import com.startup.campusmate.domain.member.social.dto.SocialLoginRq;
@@ -24,7 +24,7 @@ public class SocialService {
 
     private final MemberRepository memberRepository;
     private final MemberSocialRepository memberSocialRepository;
-    private final AuthTokenService authTokenService;
+    private final JwtTokenProvider jwtTokenProvider;
     private final GoogleOAuthService googleOAuthService;
 
     public String getLoginUrl(String provider) {
@@ -50,7 +50,7 @@ public class SocialService {
         if (socialOpt.isPresent()) {
             member = socialOpt.get().getMember();
         } else {
-            Optional<Member> memberOpt = memberRepository.findByUsername(userInfo.getEmail());
+            Optional<Member> memberOpt = memberRepository.findByUsername(userInfo.getUsername());
             member = memberOpt.orElseGet(() -> registerNewSocialMember(userInfo));
             memberSocialRepository.save(
                     MemberSocial.builder()
@@ -61,7 +61,7 @@ public class SocialService {
             );
         }
 
-        String jwt = authTokenService.createAccessToken(
+        String jwt = jwtTokenProvider.createAccessToken(
                 member.getUsername(),
                 member.getId(),
                 member.getAuthorities()

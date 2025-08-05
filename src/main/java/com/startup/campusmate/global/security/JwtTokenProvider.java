@@ -1,30 +1,36 @@
-package com.startup.campusmate.domain.member.auth.service;
+package com.startup.campusmate.global.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
-@Service
-@RequiredArgsConstructor
+@Component
 @Getter
-public class AuthTokenService {
+public class JwtTokenProvider {
 
-    private final Key key;
+    private final String secretKey;
+    private Key key;
     private final long ACCESS_TOKEN_EXPIRE = 1000 * 60 * 30; // 30분
     private final long REFRESH_TOKEN_EXPIRE = 1000 * 60 * 60 * 24 * 7; // 7일
 
+    // Spring이 Bean을 만들 때
+    public JwtTokenProvider(@Value("${custom.jwt.secret}") String secretKey) {
+        this.secretKey = secretKey;
+    }
 
-    public AuthTokenService(@Value("${custom.jwt.secret}") String secretKey) {
+    // Bean 생성 완료 + 의존성 주입 완료 후
+    @PostConstruct
+    public void init() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
