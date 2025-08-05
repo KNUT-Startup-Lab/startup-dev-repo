@@ -1,7 +1,7 @@
 package com.startup.campusmate.domain.notice.service;
 
-import com.startup.campusmate.domain.member.entity.Member;
-import com.startup.campusmate.domain.member.repository.MemberRepository;
+import com.startup.campusmate.domain.member.member.entity.Member;
+import com.startup.campusmate.domain.member.member.repository.MemberRepository;
 import com.startup.campusmate.domain.notice.dto.*;
 import com.startup.campusmate.domain.notice.entity.Attachment;
 import com.startup.campusmate.domain.notice.entity.Notice;
@@ -135,7 +135,7 @@ public class NoticeService {
         Member admin = memberRepository.findById(adminMemberId)
                 .orElse(null);
 
-        if (admin == null || admin.getRole().equals("ROLE_USER")) {
+        if (admin == null || admin.isAdmin()) {
             return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 
@@ -204,7 +204,7 @@ public class NoticeService {
         Member admin = memberRepository.findById(adminMemberId)
                 .orElse(null);
 
-        if (admin == null || admin.getRole().equals("ROLE_USER")) {
+        if (admin == null || admin.isAdmin()) {
             return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 
@@ -266,7 +266,7 @@ public class NoticeService {
         Member admin = memberRepository.findById(adminMemberId)
                 .orElse(null);
 
-        if (admin == null || admin.getRole().equals("ROLE_USER")) {
+        if (admin == null || admin.isAdmin()) {
             return RsData.of("403-F1", "관리자 권한이 없습니다.");
         }
 
