@@ -3,14 +3,25 @@ package com.startup.campusmate.domain.member.auth.service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @RequiredArgsConstructor
-public class SendMailService {
+public class AuthMessageService {
 
+    @Value("${custom.naver-sens.service-id}")
+    private String serviceId;
+    @Value("${custom.naver-sens.access-key}")
+    private String accessKey;
+    @Value("${custom.naver-sens.secret-key}")
+    private String secretKey;
+    @Value("${custom.naver-sens.sender-phone}")
+    private String senderPhone;
+    private final WebClient webClient;
     private final JavaMailSender mailSender;
 
     public void sendEmail(String toEmail, String resetUrl) throws MessagingException {
@@ -27,6 +38,12 @@ public class SendMailService {
 
         mailSender.send(message);
     }
+
+    public void sendSMS(String phoneNum, String message) {
+        // TODO: Naver SENS API에 맞게 요청 JSON 구성 및 서명 생성
+        // WebClient 또는 RestTemplate 이용해 POST 요청 보내기
+    }
+
 }
 
 
